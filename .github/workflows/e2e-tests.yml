@@ -16,25 +16,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm' # Dodanie cache przyspieszy kolejne uruchomienia
+          cache: 'npm'
 
       - name: Instalacja zależności
         run: npm install
 
-      # Kluczowy krok dla Twojej architektury aarch64
       - name: Instalacja przeglądarek Playwright
         run: npx playwright install --with-deps
 
       - name: Odpalenie testów E2E
         run: npx playwright test
-        # Warto dodać zmienne środowiskowe, jeśli testy ich wymagają (np. do Supabase)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
       - name: Budowa i odpalenie kontenera
         run: |
           docker build -t europlanner .
           docker stop europlanner || true
           docker rm europlanner || true
           docker run -d --name europlanner -p 3000:3000 --restart always europlanner
-          
