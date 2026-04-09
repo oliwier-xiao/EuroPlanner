@@ -1,0 +1,33 @@
+name: EuroPlanner E2E Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: self-hosted # Twój runner na aarch64
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Instalacja Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm' # Dodanie cache przyspieszy kolejne uruchomienia
+
+      - name: Instalacja zależności
+        run: npm install
+
+      # Kluczowy krok dla Twojej architektury aarch64
+      - name: Instalacja przeglądarek Playwright
+        run: npx playwright install --with-deps
+
+      - name: Odpalenie testów E2E
+        run: npx playwright test
+        # Warto dodać zmienne środowiskowe, jeśli testy ich wymagają (np. do Supabase)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
