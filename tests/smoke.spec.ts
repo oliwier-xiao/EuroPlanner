@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test('EuroPlanner: Strona główna się ładuje', async ({ page }) => {
-  // Używamy adresu IP Twojego serwera DietPi
-  const serverUrl = 'http://192.168.0.203:3000';
+  // Playwright automatycznie użyje baseURL z pliku konfiguracyjnego
+  // Jeśli chcesz zostać przy zmiennej wewnątrz testu, zrób tak:
+  const serverUrl = process.env.BASE_URL || 'http://localhost:3000';
   
-  await page.goto(serverUrl);
+  await page.goto('/'); // '/' oznacza teraz automatycznie baseURL z configu
 
-  // Sprawdzamy, czy nagłówek h1 zawiera tekst z Twojego pliku app/page.tsx
   await expect(page.locator('h1')).toContainText('EuroPlanner');
 });
