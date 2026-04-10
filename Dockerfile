@@ -1,4 +1,4 @@
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 
 # Deklarujemy argumenty (pobierane z --build-arg w workflow)
@@ -16,7 +16,7 @@ COPY . .
 # Budujemy aplikację Next.js (teraz widzi klucze Supabase)
 RUN npm run build
 
-FROM node:18-slim
+FROM node:20-slim
 WORKDIR /app
 COPY --from=builder /app ./
 EXPOSE 3000
