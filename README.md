@@ -79,6 +79,51 @@ Pełny rejestr ryzyk (12 pozycji) znajduje się w `docs/Karta_projektu.pdf`.
 
 ---
 
+## 📁 Struktura Projektu
+
+```
+EuroPlanner/
+├── app/                              — Główny katalog aplikacji Next.js (App Router)
+│   ├── api/                          — Endpointy backendowe (API routes)
+│   ├── (auth)/                       — Strony autoryzacji (grupowane przez layout)
+│   │   ├── login/                    — Strona logowania
+│   │   └── register/                 — Strona rejestracji
+│   ├── (dashboard)/                  — Panel użytkownika po zalogowaniu
+│   │   ├── settings/                 — Ustawienia konta
+│   │   └── trips/                    — Lista podróży
+│   │       └── [tripId]/             — Widok konkretnej podróży (dynamiczny routing)
+│   │           ├── budget/           — Zarządzanie budżetem i limitami
+│   │           ├── expenses/         — Wydatki – dodawanie, lista, OCR paragonów
+│   │           ├── report/           — Generowanie raportów PDF/CSV
+│   │           ├── route/            — Planowanie trasy (miasta, kolejność)
+│   │           └── settlements/      — Rozliczenia grupowe („kto komu ile")
+│   ├── layout.tsx                    — Główny layout aplikacji (czcionki, providery)
+│   └── page.tsx                      — Strona startowa (landing page)
+├── components/                       — Komponenty React wielokrotnego użytku
+│   ├── layout/                       — Elementy layoutu (navbar, sidebar, footer)
+│   └── ui/                           — Elementy interfejsu (przyciski, modale, inputy)
+├── docs/                             — Dokumentacja projektowa
+│   ├── inspo_plan.md                 — Plan inspiracji i założenia funkcjonalne
+│   └── Karta_Projektu.pdf           — Oficjalna karta projektu (PDF)
+├── hooks/                            — Custom React hooks (logika stanowa)
+├── lib/                              — Biblioteki pomocnicze i konfiguracje
+│   └── utils/                        — Funkcje narzędziowe (formatowanie, walidacja)
+├── public/                           — Zasoby statyczne serwowane bez przetwarzania
+│   ├── icons/                        — Ikony aplikacji (favicon, PWA)
+│   └── images/                       — Obrazy i grafiki
+├── tests/                            — Testy end-to-end (Playwright)
+│   └── smoke.spec.ts                 — Podstawowy test dymny (czy apka wstaje)
+├── types/                            — Globalne definicje typów TypeScript
+├── .github/workflows/
+│   └── e2e-tests.yml                 — CI pipeline – automatyczne testy na GitHub Actions
+├── Dockerfile                        — Obraz Docker do wdrożenia na serwer
+├── playwright.config.ts              — Konfiguracja testów Playwright
+├── tsconfig.json                     — Konfiguracja kompilatora TypeScript
+└── package.json                      — Zależności projektu i skrypty npm
+```
+
+---
+
 ## 🚀 Instalacja i Uruchomienie
 
 ### Wymagania wstępne
