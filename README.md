@@ -122,6 +122,56 @@ Aplikacja będzie dostępna pod adresem [http://localhost:3000](http://localhost
 
 ---
 
+## 🧪 Testy E2E w Playwright
+
+Aplikacja ma skonfigurowane testy end‑to‑end w [Playwright](https://playwright.dev/) z plikami testów w katalogu `tests/` (np. `tests/smoke.spec.ts`).
+
+### 1. Jednorazowa instalacja przeglądarek Playwright
+
+Po zainstalowaniu zależności (`npm install`) uruchom lokalnie:
+
+```bash
+npx playwright install
+```
+
+### 2. Uruchomienie testów lokalnie
+
+Playwright ma skonfigurowany `webServer` w `playwright.config.ts`, więc **nie musisz** samodzielnie uruchamiać `npm run dev` – testy same startują serwer deweloperski.
+
+- Wszystkie testy i wszystkie przeglądarki z configu:
+
+```bash
+npx playwright test
+```
+
+- Tylko szybki test smoke:
+
+```bash
+npx playwright test tests/smoke.spec.ts
+```
+
+- Tylko wybrana przeglądarka (np. Chromium / Firefox / WebKit):
+
+```bash
+npx playwright test --project=chromium
+npx playwright test --project=firefox
+npx playwright test --project=webkit
+```
+
+Po każdym uruchomieniu generowany jest raport HTML w katalogu `playwright-report/` (plik `index.html`), który możesz otworzyć w przeglądarce lub komendą:
+
+```bash
+npx playwright show-report
+```
+
+### 3. Testy na serwerze (CI)
+
+Repozytorium zawiera workflow GitHub Actions [`e2e-tests.yml`](.github/workflows/e2e-tests.yml), który na self‑hosted runnerze:
+
+- buduje obraz Dockera i uruchamia aplikację w kontenerze,
+- instaluje przeglądarki Playwright,
+- odpala `npx playwright test` przy każdym commicie / pull requeście na gałąź `main`.
+
 
 ## 📄 Licencja
 
