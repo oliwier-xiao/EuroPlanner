@@ -39,8 +39,7 @@ jobs:
             -e NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
             -e NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
             europlanner
-          
-        
+      
           sleep 15
 
       - name: Odpalenie testów E2E
