@@ -21,15 +21,18 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
   },
 
-  /* Ta sekcja automatycznie uruchamia serwer Next.js przed testami.
-    Dzięki temu nie musisz ręcznie wpisywać `npm run dev` w osobnym oknie.
+  /* Ta sekcja automatycznie uruchamia serwer Next.js przed testami
+     TYLKO lokalnie. Na CI serwer dostarcza Docker, więc Playwright
+     nie próbuje startować drugiego procesu na porcie 3000.
   */
-  webServer: {
-    command: 'npm run dev',
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000, // Malinka może potrzebować więcej czasu na start (2 minuty)
-  },
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: 'npm run dev',
+        url: `http://localhost:${PORT}`,
+        reuseExistingServer: true,
+        timeout: 120 * 1000, // Malinka może potrzebować więcej czasu na start (2 minuty)
+      },
 
   projects: [
     {
