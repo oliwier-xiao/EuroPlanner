@@ -1,70 +1,84 @@
-import { supabase } from '@/lib/supabaseClient';
+"use client";
 
-// Prosty widok danych z tabeli "Users" w Supabase.
-// W razie potrzeby możesz zmienić nazwę tabeli lub wybierane kolumny.
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default async function TripsPage() {
-  const { data, error } = await supabase
-    .from('Users')
-    .select('*')
-    .order('user_id', { ascending: true });
+export default function LoginPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  if (error) {
-    return (
-      <div style={{ padding: '2rem' }}>
-        <h1>Lista użytkowników</h1>
-        <p style={{ color: 'red' }}>Błąd pobierania danych z Supabase: {error.message}</p>
-      </div>
-    );
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        router.push("/dashboard");
+      } else {
+        setError(data.message);
+      }
+    } catch {
+      setError("Wystąpił błąd połączenia");
+    } finally {
+      setLoading(false);
+    }
   }
-
-  if (!data || data.length === 0) {
-    return (
-      <div style={{ padding: '2rem' }}>
-        <h1>Lista użytkowników</h1>
-        <p>Brak danych w tabeli "Users".</p>
-      </div>
-    );
-  }
-
-  const columns = Object.keys(data[0]);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Lista użytkowników (Supabase)</h1>
-      <table style={{ borderCollapse: 'collapse', width: '100%', marginTop: '1rem' }}>
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col}
-                style={{
-                  border: '1px solid #ccc',
-                  padding: '0.5rem',
-                  backgroundColor: '#0f172a',
-                  color: 'white',
-                  textAlign: 'left',
-                }}
-              >
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <tr key={row.id ?? JSON.stringify(row)}>
-              {columns.map((col) => (
-                <td key={col} style={{ border: '1px solid #eee', padding: '0.5rem' }}>
-                  {typeof row[col] === 'object' && row[col] !== null
-                    ? JSON.stringify(row[col])
-                    : String(row[col])}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="flex justify-center items-center min-h-screen bg-slate-900 text-white font-sans">
+      <div className="text-center border-2 border-sky-400 p-8 rounded-2xl w-full max-w-sm">
+        <h1 className="text-2xl font-bold mb-2">Logowanie</h1>
+        <p className="text-slate-300 mb-6">Zaloguj się do EuroPlanner.</p>
+
+        {error && (
+          <p className="text-red-400 text-sm mb-4">{error}</p>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <input
+            type="text"
+            placeholder="Nazwa użytkownika"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:border-sky-400"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Hasło"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:border-sky-400"
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 bg-sky-400 text-white font-semibold rounded-lg hover:bg-sky-500 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {loading ? "Logowanie..." : "Zaloguj się"}
+          </button>
+        </form>
+
+        <div className="mt-4 text-slate-300">
+          Nie masz konta?{" "}
+          <a href="/register" className="text-sky-400 hover:underline">
+            Zarejestruj się
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
