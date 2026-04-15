@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test';
 
+async function fillStable(locator, value: string) {
+  // WebKit bywa niestabilny przy szybkim fill; wpisywanie sekwencyjne jest wolniejsze, ale pewniejsze.
+  await locator.click();
+  await locator.fill('');
+  await locator.pressSequentially(value, { delay: 30 });
+  await expect(locator).toHaveValue(value);
+}
+
 async function registerUser(page, {
   name,
   surname,
@@ -7,9 +15,13 @@ async function registerUser(page, {
 }: { name: string; surname: string; password: string }) {
   await page.goto('/register');
 
-  await page.getByPlaceholder('Imię').fill(name);
-  await page.getByPlaceholder('Nazwisko').fill(surname);
-  await page.getByPlaceholder('Hasło').fill(password);
+  const nameInput = page.getByPlaceholder('Imię');
+  const surnameInput = page.getByPlaceholder('Nazwisko');
+  const passwordInput = page.getByPlaceholder('Hasło');
+
+  await fillStable(nameInput, name);
+  await fillStable(surnameInput, surname);
+  await fillStable(passwordInput, password);
   await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
   // po udanej rejestracji formularz czyści pola – poczekaj na ten stan,
@@ -34,16 +46,25 @@ test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
 
   await registerUser(page, user);
 
-  await page.goto('/login');
-  await page.getByPlaceholder('Imię').fill(user.name);
-  await page.getByPlaceholder('Hasło').fill(user.password);
-
-  const [loginResponse] = await Promise.all([
-    page.waitForResponse((res) =>
-      res.url().includes('/api/auth/login') && res.request().method() === 'POST'
-    ),
-    page.getByRole('button', { name: 'Zaloguj się' }).click(),
+  await Promise.all([
+    page.waitForURL(/\/login/),
+    page.getByRole('link', { name: 'Zaloguj się' }).click(),
   ]);
+  const loginNameInput = page.getByPlaceholder('Imię');
+  const loginPasswordInput = page.getByPlaceholder('Hasło');
+
+  await fillStable(loginNameInput, user.name);
+  await fillStable(loginPasswordInput, user.password);
+
+  const loginResponsePromise = page.waitForResponse(
+    (res) =>
+      res.url().includes('/api/auth/login') &&
+      res.request().method() === 'POST' &&
+      res.status() === 200
+  );
+
+  await page.getByRole('button', { name: 'Zaloguj się' }).click();
+  const loginResponse = await loginResponsePromise;
 
   expect(loginResponse.ok()).toBeTruthy();
   await expect(page).toHaveURL(/\/dashboard/);
@@ -53,8 +74,8 @@ test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
 test('Bledne dane logowania pokazuja blad', async ({ page }) => {
   await page.goto('/login');
 
-  await page.getByPlaceholder('Imię').fill('zly');
-  await page.getByPlaceholder('Hasło').fill('zly');
+  await fillStable(page.getByPlaceholder('Imię'), 'zly');
+  await fillStable(page.getByPlaceholder('Hasło'), 'zly');
   await page.getByRole('button', { name: 'Zaloguj się' }).click();
   await expect(page).toHaveURL(/\/login/);
 });
@@ -69,21 +90,30 @@ test('Wylogowanie wraca na login', async ({ page }) => {
 
   await registerUser(page, user);
 
-  await page.goto('/login');
-  await page.getByPlaceholder('Imię').fill(user.name);
-  await page.getByPlaceholder('Hasło').fill(user.password);
-
-  const [loginResponse] = await Promise.all([
-    page.waitForResponse((res) =>
-      res.url().includes('/api/auth/login') && res.request().method() === 'POST'
-    ),
-    page.getByRole('button', { name: 'Zaloguj się' }).click(),
+  await Promise.all([
+    page.waitForURL(/\/login/),
+    page.getByRole('link', { name: 'Zaloguj się' }).click(),
   ]);
+  const loginNameInput = page.getByPlaceholder('Imię');
+  const loginPasswordInput = page.getByPlaceholder('Hasło');
+
+  await fillStable(loginNameInput, user.name);
+  await fillStable(loginPasswordInput, user.password);
+
+  const loginResponsePromise = page.waitForResponse(
+    (res) =>
+      res.url().includes('/api/auth/login') &&
+      res.request().method() === 'POST' &&
+      res.status() === 200
+  );
+
+  await page.getByRole('button', { name: 'Zaloguj się' }).click();
+  const loginResponse = await loginResponsePromise;
 
   expect(loginResponse.ok()).toBeTruthy();
   await expect(page).toHaveURL(/\/dashboard/);
 
-  await page.getByRole('button', { name: 'Wyloguj' }).click();
+  await page.getByRole('button', { name: 'Wyloguj się' }).click();
 
   await expect(page).toHaveURL(/\/login/);
 });
