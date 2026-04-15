@@ -1,11 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Locator } from '@playwright/test';
 
-async function fillStable(locator, value: string) {
-  // WebKit bywa niestabilny przy szybkim fill; wpisywanie sekwencyjne jest wolniejsze, ale pewniejsze.
-  await locator.click();
-  await locator.fill('');
-  await locator.pressSequentially(value, { delay: 30 });
-  await expect(locator).toHaveValue(value);
+async function fillStable(locator: Locator, value: string) {
+  await expect(locator).toBeVisible();
+  await expect(locator).toBeEditable();
+
+  // Retry całego wpisania, bo kontrolowany input może zostać na moment wyczyszczony po re-renderze.
+  await expect(async () => {
+    await locator.click();
+    await locator.fill('');
+    await locator.pressSequentially(value, { delay: 30 });
+    await expect(locator).toHaveValue(value, { timeout: 2000 });
+  }).toPass({ timeout: 10000 });
 }
 
 async function registerUser(page, {
@@ -24,9 +29,8 @@ async function registerUser(page, {
   await fillStable(passwordInput, password);
   await page.getByRole('button', { name: 'Zarejestruj się' }).click();
 
-  // po udanej rejestracji formularz czyści pola – poczekaj na ten stan,
-  // żeby mieć pewność, że użytkownik został utworzony zanim spróbujemy się zalogować
-  await expect(page.getByPlaceholder('Imię')).toHaveValue('');
+  // Stabilny sygnał sukcesu rejestracji zamiast zależności od czyszczenia formularza.
+  await expect(page.getByText('Konto zostało utworzone. Możesz się zalogować.')).toBeVisible();
 }
 
 test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
@@ -45,28 +49,32 @@ test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
   };
 
   await registerUser(page, user);
+  await page.waitForTimeout(1000);
 
-  await Promise.all([
-    page.waitForURL(/\/login/),
-    page.getByRole('link', { name: 'Zaloguj się' }).click(),
-  ]);
+  await page.locator('a[href="/login"]').click();
+  await expect(page).toHaveURL(/\/login/);
   const loginNameInput = page.getByPlaceholder('Imię');
   const loginPasswordInput = page.getByPlaceholder('Hasło');
 
   await fillStable(loginNameInput, user.name);
   await fillStable(loginPasswordInput, user.password);
 
-  const loginResponsePromise = page.waitForResponse(
-    (res) =>
-      res.url().includes('/api/auth/login') &&
-      res.request().method() === 'POST' &&
-      res.status() === 200
-  );
+  // Ostatnia walidacja tuż przed submitem: jeśli inputy zostaną wyczyszczone przez re-render,
+  // test pokaże to od razu zamiast timeoutu na waitForResponse.
+  await expect(loginNameInput).toHaveValue(user.name);
+  await expect(loginPasswordInput).toHaveValue(user.password);
 
-  await page.getByRole('button', { name: 'Zaloguj się' }).click();
-  const loginResponse = await loginResponsePromise;
+  const [loginResponse] = await Promise.all([
+    page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/auth/login') &&
+        res.request().method() === 'POST',
+      { timeout: 15000 }
+    ),
+    page.getByRole('button', { name: 'Zaloguj się' }).click(),
+  ]);
 
-  expect(loginResponse.ok()).toBeTruthy();
+  expect(loginResponse.status(), 'Oczekiwano statusu 200 z /api/auth/login').toBe(200);
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.locator('h1')).toContainText('Tutaj');
 });
@@ -89,28 +97,30 @@ test('Wylogowanie wraca na login', async ({ page }) => {
   };
 
   await registerUser(page, user);
+  await page.waitForTimeout(1000);
 
-  await Promise.all([
-    page.waitForURL(/\/login/),
-    page.getByRole('link', { name: 'Zaloguj się' }).click(),
-  ]);
+  await page.locator('a[href="/login"]').click();
+  await expect(page).toHaveURL(/\/login/);
   const loginNameInput = page.getByPlaceholder('Imię');
   const loginPasswordInput = page.getByPlaceholder('Hasło');
 
   await fillStable(loginNameInput, user.name);
   await fillStable(loginPasswordInput, user.password);
 
-  const loginResponsePromise = page.waitForResponse(
-    (res) =>
-      res.url().includes('/api/auth/login') &&
-      res.request().method() === 'POST' &&
-      res.status() === 200
-  );
+  await expect(loginNameInput).toHaveValue(user.name);
+  await expect(loginPasswordInput).toHaveValue(user.password);
 
-  await page.getByRole('button', { name: 'Zaloguj się' }).click();
-  const loginResponse = await loginResponsePromise;
+  const [loginResponse] = await Promise.all([
+    page.waitForResponse(
+      (res) =>
+        res.url().includes('/api/auth/login') &&
+        res.request().method() === 'POST',
+      { timeout: 15000 }
+    ),
+    page.getByRole('button', { name: 'Zaloguj się' }).click(),
+  ]);
 
-  expect(loginResponse.ok()).toBeTruthy();
+  expect(loginResponse.status(), 'Oczekiwano statusu 200 z /api/auth/login').toBe(200);
   await expect(page).toHaveURL(/\/dashboard/);
 
   await page.getByRole('button', { name: 'Wyloguj się' }).click();
