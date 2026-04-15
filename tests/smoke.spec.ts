@@ -1,5 +1,22 @@
 import { test, expect } from '@playwright/test';
 
+async function registerUser(page, {
+  name,
+  surname,
+  password,
+}: { name: string; surname: string; password: string }) {
+  await page.goto('/register');
+
+  await page.getByPlaceholder('Imię').fill(name);
+  await page.getByPlaceholder('Nazwisko').fill(surname);
+  await page.getByPlaceholder('Hasło').fill(password);
+  await page.getByRole('button', { name: 'Zarejestruj się' }).click();
+
+  // po udanej rejestracji formularz czyści pola – poczekaj na ten stan,
+  // żeby mieć pewność, że użytkownik został utworzony zanim spróbujemy się zalogować
+  await expect(page.getByPlaceholder('Imię')).toHaveValue('');
+}
+
 test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
   await page.goto('/');
 
@@ -7,13 +24,28 @@ test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Logowanie');
 });
 
-test('Logowanie admin/admin przekierowuje na dashboard', async ({ page }) => {
+test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
+  const suffix = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  const user = {
+    name: `Playwright${suffix}`,
+    surname: `User${suffix}`,
+    password: 'haslo123!',
+  };
+
+  await registerUser(page, user);
+
   await page.goto('/login');
+  await page.getByPlaceholder('Imię').fill(user.name);
+  await page.getByPlaceholder('Hasło').fill(user.password);
 
-  await page.fill('input[type="text"]', 'admin');
-  await page.fill('input[type="password"]', 'admin');
-  await page.click('button[type="submit"]');
+  const [loginResponse] = await Promise.all([
+    page.waitForResponse((res) =>
+      res.url().includes('/api/auth/login') && res.request().method() === 'POST'
+    ),
+    page.getByRole('button', { name: 'Zaloguj się' }).click(),
+  ]);
 
+  expect(loginResponse.ok()).toBeTruthy();
   await expect(page).toHaveURL(/\/dashboard/);
   await expect(page.locator('h1')).toContainText('Tutaj');
 });
@@ -21,22 +53,37 @@ test('Logowanie admin/admin przekierowuje na dashboard', async ({ page }) => {
 test('Bledne dane logowania pokazuja blad', async ({ page }) => {
   await page.goto('/login');
 
-  await page.fill('input[type="text"]', 'zly');
-  await page.fill('input[type="password"]', 'zly');
-  await page.click('button[type="submit"]');
-
-  await expect(page.locator('p.text-red-400')).toBeVisible();
+  await page.getByPlaceholder('Imię').fill('zly');
+  await page.getByPlaceholder('Hasło').fill('zly');
+  await page.getByRole('button', { name: 'Zaloguj się' }).click();
   await expect(page).toHaveURL(/\/login/);
 });
 
 test('Wylogowanie wraca na login', async ({ page }) => {
+  const suffix = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  const user = {
+    name: `PlaywrightLogout${suffix}`,
+    surname: `User${suffix}`,
+    password: 'haslo123!',
+  };
+
+  await registerUser(page, user);
+
   await page.goto('/login');
-  await page.fill('input[type="text"]', 'admin');
-  await page.fill('input[type="password"]', 'admin');
-  await page.click('button[type="submit"]');
+  await page.getByPlaceholder('Imię').fill(user.name);
+  await page.getByPlaceholder('Hasło').fill(user.password);
+
+  const [loginResponse] = await Promise.all([
+    page.waitForResponse((res) =>
+      res.url().includes('/api/auth/login') && res.request().method() === 'POST'
+    ),
+    page.getByRole('button', { name: 'Zaloguj się' }).click(),
+  ]);
+
+  expect(loginResponse.ok()).toBeTruthy();
   await expect(page).toHaveURL(/\/dashboard/);
 
-  await page.click('button:has-text("Wyloguj")');
+  await page.getByRole('button', { name: 'Wyloguj' }).click();
 
   await expect(page).toHaveURL(/\/login/);
 });

@@ -1,23 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const MOCK_USER = { username: "admin", password: "admin" };
+import { supabase } from "@/lib/supabaseClient";
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { username, password } = body;
+  try {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error("Nieprawidłowy JSON w żądaniu logowania:", parseError);
+      return NextResponse.json(
+        { success: false, message: "Nieprawidłowe dane logowania" },
+        { status: 400 }
+      );
+    }
 
-  if (username === MOCK_USER.username && password === MOCK_USER.password) {
+    const { name, password } = (body ?? {}) as { name?: string; password?: string };
+
+    if (!name || !password) {
+      return NextResponse.json(
+        { success: false, message: "Brak imienia lub hasła" },
+        { status: 400 }
+      );
+    }
+
+    console.log('LOGIN_REQ', { name, password });
+    const { data: user, error } = await supabase
+      .from("Users")
+      .select("user_id, name, password")
+      .eq("name", name)
+      .eq("password", password)
+      .maybeSingle();
+    console.log('LOGIN_RES', { user, error });
+
+    if (error) {
+      console.error("Błąd podczas logowania:", error);
+      return NextResponse.json(
+        { success: false, message: "Błąd serwera podczas logowania" },
+        { status: 500 }
+      );
+    }
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Nieprawidłowe imię lub hasło" },
+        { status: 401 }
+      );
+    }
+
     const response = NextResponse.json({ success: true });
-    response.cookies.set("auth-token", "mock-session-admin", {
+    response.cookies.set("auth-token", user.user_id, {
       httpOnly: true,
       path: "/",
       maxAge: 60 * 60 * 24,
     });
     return response;
+  } catch (err) {
+    console.error("Nieoczekiwany błąd logowania:", err);
+    return NextResponse.json(
+      { success: false, message: "Nieoczekiwany błąd serwera" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(
-    { success: false, message: "Nieprawidłowa nazwa użytkownika lub hasło" },
-    { status: 401 }
-  );
 }

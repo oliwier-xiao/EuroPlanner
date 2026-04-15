@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ name, password }),
       });
 
       const data = await res.json();
@@ -49,9 +49,9 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             type="text"
-            placeholder="Nazwa użytkownika"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Imię"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:border-sky-400"
             required
           />
