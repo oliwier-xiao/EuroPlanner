@@ -103,6 +103,9 @@ EuroPlanner/
 │   ├── layout/                       — Elementy layoutu (navbar, sidebar, footer)
 │   └── ui/                           — Elementy interfejsu (przyciski, modale, inputy)
 ├── docs/                             — Dokumentacja projektowa
+│   ├── DATABASE.md                   — Opis schematu bazy danych (tabele, relacje, konwencje)
+│   ├── ERD.dbml                      — Schemat bazy w formacie DBML (dbdiagram.io)
+│   ├── ERD.png                       — Wizualizacja diagramu ERD
 │   ├── inspo_plan.md                 — Plan inspiracji i założenia funkcjonalne
 │   └── Karta_Projektu.pdf           — Oficjalna karta projektu (PDF)
 ├── hooks/                            — Custom React hooks (logika stanowa)
