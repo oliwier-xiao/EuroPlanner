@@ -2,15 +2,23 @@ import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabaseClient";
 import DashboardClient from "./DashboardClient";
 
-async function getUserName(userId: string): Promise<string | null> {
-  const { data, error } = await supabase
-    .from("Users")
-    .select("name")
-    .eq("user_id", userId)
-    .maybeSingle();
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-  if (error || !data) return null;
-  return data.name ?? null;
+async function getUserName(userId: string): Promise<string | null> {
+  if (!UUID_RE.test(userId)) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from("Users")
+      .select("name")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return data.name ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export default async function DashboardPage() {

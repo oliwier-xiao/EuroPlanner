@@ -22,7 +22,9 @@ export default function DashboardClient({ userName }: DashboardClientProps) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const greetingName = userName ?? "Podróżniku";
+  const greetingName = userName
+    ? userName.charAt(0).toLocaleUpperCase("pl-PL") + userName.slice(1)
+    : "Podróżniku";
 
   return (
     <div className="p-4 md:p-8 space-y-8 relative">
