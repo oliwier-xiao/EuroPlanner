@@ -1,25 +1,31 @@
-"use client";
+import { cookies } from "next/headers";
+import { supabase } from "@/lib/supabaseClient";
+import DashboardClient from "./DashboardClient";
 
-import { useRouter } from "next/navigation";
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function DashboardPage() {
-  const router = useRouter();
+async function getUserName(userId: string): Promise<string | null> {
+  if (!UUID_RE.test(userId)) return null;
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+  try {
+    const { data, error } = await supabase
+      .from("Users")
+      .select("name")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return data.name ?? null;
+  } catch {
+    return null;
   }
+}
 
-  return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-slate-900 text-white">
-      <h1 className="text-4xl font-bold mb-4">Tutaj Działaj</h1>
-      <p className="text-slate-400 mb-8">Dashboard — miejsce na frontend</p>
-      <button
-        onClick={handleLogout}
-        className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors cursor-pointer"
-      >
-        Wyloguj się
-      </button>
-    </div>
-  );
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("auth-token")?.value;
+
+  const userName = userId ? await getUserName(userId) : null;
+
+  return <DashboardClient userName={userName} />;
 }

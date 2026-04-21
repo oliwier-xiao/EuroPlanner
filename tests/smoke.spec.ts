@@ -36,7 +36,7 @@ test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
   await page.goto('/dashboard', { waitUntil: 'commit' });
 
   await expect(page).toHaveURL(/\/dashboard/);
-  await expect(page.locator('h1')).toContainText('Tutaj Działaj');
+  await expect(page.locator('h1')).toContainText('Podróżniku');
 });
 
 test('Bledne dane logowania pokazuja blad', async ({ page }) => {
