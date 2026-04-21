@@ -1,150 +1,185 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { 
+  Lock, 
+  ChevronLeft, 
+  Eye, 
+  EyeOff, 
+  Save, 
+  ShieldCheck,
+  AlertCircle
+} from "lucide-react";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  // Stany do kontrolowania widoczności haseł
+  
+  // Stany dla widoczności haseł
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      alert("Hasło zostało pomyślnie zmienione!");
-      setLoading(false);
-      router.push("/settings");
-    }, 1500);
+  // Stany dla wartości z formularza
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Stan dla błędu
+  const [error, setError] = useState<string | null>(null);
+
+  const handleUpdatePassword = () => {
+    setError(null);
+
+    // 1. Sprawdzamy czy wszystkie pola są wypełnione
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setError("Proszę wypełnić wszystkie pola formularza.");
+      return;
+    }
+
+    // 2. Sprawdzamy czy nowe hasła są identyczne
+    if (newPassword !== confirmPassword) {
+      setError("Nowe hasła nie są identyczne.");
+      return;
+    }
+
+    // 3. Sprawdzamy minimalną długość (dobra praktyka)
+    if (newPassword.length < 8) {
+      setError("Nowe hasło musi mieć co najmniej 8 znaków.");
+      return;
+    }
+
+    // --- JEŚLI WSZYSTKO JEST ZGODNE ---
+    
+    // Wyświetlamy popup przeglądarkowy
+    window.alert("Hasło zostało pomyślnie zmienione!");
+    
+    // Dopiero po kliknięciu "OK" w popuupie wracamy do ustawień
+    router.back();
   };
 
-  // Ikonka otwartego oka
-  const EyeIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-
-  // Ikonka przekreślonego oka
-  const EyeOffIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-      <line x1="2" x2="22" y1="2" y2="22" />
-    </svg>
-  );
-
   return (
-    <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="space-y-2">
-        <button 
-          onClick={() => router.push("/settings")}
-          className="text-slate-400 hover:text-white text-sm flex items-center gap-2 transition-colors cursor-pointer mb-4"
-        >
-          ← Powrót do ustawień
-        </button>
-        <h1 className="text-3xl font-bold text-white">Zmiana hasła</h1>
-        <p className="text-slate-400 text-sm">
-          Dla bezpieczeństwa Twojego konta, używaj silnego hasła (min. 8 znaków, cyfry i symbole).
-        </p>
+    <div className="pt-10 md:pt-16 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto pb-20 px-4">
+      
+      {/* PRZYCISK POWROTU */}
+      <button 
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-[#5b616e] hover:text-[#0a2351] font-bold transition-colors group"
+      >
+        <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+        Powrót do ustawień
+      </button>
+
+      {/* NAGŁÓWEK */}
+      <div>
+        <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight mb-2">Bezpieczeństwo hasła</h2>
+        <p className="text-[#5b616e]">Ustaw unikalne hasło, aby chronić swoje konto.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-slate-800/50 rounded-2xl border border-slate-700 p-6 md:p-8 space-y-6 shadow-xl">
-        <div className="space-y-4">
-          
+      {/* KARTA FORMULARZA */}
+      <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-12">
+        <div className="flex items-center gap-3 mb-10">
+          <div className="p-3 bg-[#f8f9fa] rounded-2xl text-[#0a2351]">
+            <ShieldCheck size={28} />
+          </div>
+          <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight">Zmień hasło</h3>
+        </div>
+
+        <div className="space-y-8">
           {/* OBECNE HASŁO */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-              Obecne hasło
-            </label>
+          <div className="space-y-2 relative">
+            <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Obecne hasło</label>
             <div className="relative">
               <input 
                 type={showCurrent ? "text" : "password"} 
-                required
                 placeholder="••••••••"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-4 pr-12 py-3 text-white focus:outline-none focus:border-sky-500 transition-colors"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors pr-14"
               />
               <button 
-                type="button" 
+                type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-sky-400 transition-colors cursor-pointer"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors"
               >
-                {showCurrent ? <EyeOffIcon /> : <EyeIcon />}
+                {showCurrent ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
 
-          <div className="h-px bg-slate-700/50 my-2" />
+          <div className="h-px bg-[#5b616e]/10 w-full" />
 
           {/* NOWE HASŁO */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-              Nowe hasło
-            </label>
+          <div className="space-y-2 relative">
+            <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Nowe hasło</label>
             <div className="relative">
               <input 
                 type={showNew ? "text" : "password"} 
-                required
-                placeholder="Min. 8 znaków"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-4 pr-12 py-3 text-white focus:outline-none focus:border-sky-500 transition-colors"
+                placeholder="Minimum 8 znaków"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors pr-14"
               />
               <button 
-                type="button" 
+                type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-sky-400 transition-colors cursor-pointer"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors"
               >
-                {showNew ? <EyeOffIcon /> : <EyeIcon />}
+                {showNew ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
 
           {/* POTWIERDŹ NOWE HASŁO */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">
-              Powtórz nowe hasło
-            </label>
+          <div className="space-y-2 relative">
+            <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Powtórz nowe hasło</label>
             <div className="relative">
               <input 
                 type={showConfirm ? "text" : "password"} 
-                required
-                placeholder="Potwierdź nowe hasło"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-4 pr-12 py-3 text-white focus:outline-none focus:border-sky-500 transition-colors"
+                placeholder="Powtórz nowe hasło"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors pr-14"
               />
               <button 
-                type="button" 
+                type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-sky-400 transition-colors cursor-pointer"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors"
               >
-                {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
+                {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
 
-        </div>
+          {/* BŁĄD WALIDACJI */}
+          {error && (
+            <div className="flex items-center gap-2 text-red-600 bg-red-50 px-4 py-3 rounded-2xl text-sm font-bold animate-in fade-in zoom-in duration-300">
+              <AlertCircle size={18} />
+              {error}
+            </div>
+          )}
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <button 
-            type="submit"
-            disabled={loading}
-            className="flex-1 py-3 bg-sky-500 hover:bg-sky-600 disabled:bg-slate-700 text-white font-bold rounded-lg transition-all shadow-lg shadow-sky-500/20 cursor-pointer"
-          >
-            {loading ? "Przetwarzanie..." : "Zaktualizuj hasło"}
-          </button>
-          <button 
-            type="button"
-            onClick={() => router.push("/settings")}
-            className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition-colors cursor-pointer"
-          >
-            Anuluj
-          </button>
+          {/* PRZYCISKI AKCJI */}
+          <div className="pt-2 flex flex-col sm:flex-row gap-4">
+            <button 
+              type="button"
+              onClick={() => router.back()}
+              className="w-full px-8 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors"
+            >
+              Anuluj
+            </button>
+            <button 
+              type="button"
+              onClick={handleUpdatePassword}
+              className="w-full px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#0a2351]/10"
+            >
+              <Save size={20} />
+              Zapisz zmiany
+            </button>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

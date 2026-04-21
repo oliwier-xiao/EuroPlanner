@@ -1,108 +1,153 @@
 "use client";
 
 import React from "react";
+import { 
+  FileText, 
+  Download, 
+  FileSpreadsheet, 
+  PieChart, 
+  Users, 
+  Calendar,
+  CheckCircle2,
+  TrendingUp
+} from "lucide-react";
 
 export default function ReportPage() {
-  // Przykładowe dane do raportu
-  const tripSummary = {
-    name: "Majówka w Rzymie",
-    date: "10.05.2026 - 15.05.2026",
-    totalSpent: "1 840.00 EUR",
-    averagePerDay: "306.66 EUR",
-    topCategory: "Jedzenie (45%)",
-    totalParagons: 12
-  };
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
       
-      {/* NAGŁÓWEK SEKCI RAPORTÓW */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
-        <div>
-          <h3 className="text-xl font-bold text-white">Raporty i Eksport</h3>
-          <p className="text-sm text-slate-400">Wygeneruj oficjalne podsumowanie Twojej podróży.</p>
+      {/* NAGŁÓWEK I PRZYCISKI EKSPORTU */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-[#ffffff] p-8 md:p-12 rounded-[40px] border border-[#5b616e]/10 shadow-sm relative overflow-hidden">
+        <div className="absolute -right-10 -top-10 text-[#f8f9fa] z-0">
+          <FileText size={200} />
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-all cursor-pointer">
+        
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 bg-[#eef0f3] text-[#0a2351] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+            <CheckCircle2 size={16} />
+            Podróż Zakończona
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0a0b0d] tracking-tighter mb-4">
+            Raport końcowy
+          </h2>
+          <p className="text-[#5b616e] text-lg max-w-md">
+            Kompletne podsumowanie kosztów, rozliczeń i statystyk z Twojej podróży.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto relative z-10">
+          <button className="px-8 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 border border-transparent hover:border-[#0a2351]/10">
+            <FileSpreadsheet size={20} />
             Eksportuj CSV
           </button>
-          <button className="flex-1 sm:flex-none px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-sky-500/20 transition-all cursor-pointer">
+          <button className="px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 shadow-lg shadow-[#0a2351]/20">
+            <Download size={20} />
             Pobierz PDF
           </button>
         </div>
       </div>
 
-      {/* PODGLĄD RAPORTU */}
-      <div className="bg-white text-slate-900 p-8 md:p-12 rounded-sm shadow-2xl max-w-4xl mx-auto font-serif relative overflow-hidden">
-        {/* Znak wodny EuroPlanner */}
-        <div className="absolute top-10 right-[-40px] rotate-45 bg-sky-500 text-white px-10 py-1 text-xs font-sans font-bold uppercase tracking-widest opacity-20">
-          EuroPlanner
-        </div>
-
-        {/* Nagłówek dokumentu */}
-        <div className="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-start">
+      {/* KLUCZOWE STATYSTYKI */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-[#ffffff] p-8 rounded-[32px] border border-[#5b616e]/10 shadow-sm flex flex-col justify-between">
+          <div className="p-3 bg-[#f8f9fa] text-[#0a2351] rounded-2xl w-max mb-6">
+            <TrendingUp size={24} />
+          </div>
           <div>
-            <h2 className="text-3xl font-black uppercase tracking-tighter">Raport Podróży</h2>
-            <p className="text-slate-500 font-sans text-sm mt-1 uppercase tracking-widest">{tripSummary.name}</p>
-          </div>
-          <div className="text-right font-sans text-xs text-slate-400">
-            <p>Data wygenerowania:</p>
-            <p className="font-bold text-slate-900">16.05.2026</p>
-          </div>
-        </div>
-
-        {/* Tabela z kluczowymi danymi */}
-        <div className="grid grid-cols-2 gap-y-6 gap-x-12 mb-10 font-sans">
-          <div className="border-b border-slate-200 pb-2">
-            <p className="text-[10px] text-slate-400 uppercase font-bold">Czas trwania</p>
-            <p className="font-medium text-sm">{tripSummary.date}</p>
-          </div>
-          <div className="border-b border-slate-200 pb-2">
-            <p className="text-[10px] text-slate-400 uppercase font-bold">Łączny koszt</p>
-            <p className="font-bold text-sm text-sky-600">{tripSummary.totalSpent}</p>
-          </div>
-          <div className="border-b border-slate-200 pb-2">
-            <p className="text-[10px] text-slate-400 uppercase font-bold">Średnia dziennie</p>
-            <p className="font-medium text-sm">{tripSummary.averagePerDay}</p>
-          </div>
-          <div className="border-b border-slate-200 pb-2">
-            <p className="text-[10px] text-slate-400 uppercase font-bold">Główna kategoria</p>
-            <p className="font-medium text-sm">{tripSummary.topCategory}</p>
+            <h3 className="text-[#5b616e] text-sm font-bold uppercase tracking-wider mb-2">Całkowity koszt</h3>
+            <div className="text-4xl font-bold text-[#0a0b0d] tracking-tighter">
+              1 840 <span className="text-xl text-[#5b616e]">EUR</span>
+            </div>
+            <p className="text-sm font-medium text-[#5b616e] mt-2">Z zaplanowanych 2 000 EUR</p>
           </div>
         </div>
 
-        {/* Sekcja Rozliczeń Końcowych */}
-        <div className="mt-12">
-          <h4 className="font-sans font-bold text-xs uppercase tracking-widest bg-slate-100 p-2 mb-4">Ostateczne rozliczenia między uczestnikami</h4>
-          <table className="w-full text-left text-sm font-sans">
-            <thead className="text-slate-400 text-[10px] uppercase border-b">
-              <tr>
-                <th className="py-2">Osoba płacąca</th>
-                <th className="py-2">Odbiorca</th>
-                <th className="py-2 text-right">Kwota przelewu</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              <tr>
-                <td className="py-3 font-medium">Wiktoria</td>
-                <td className="py-3 italic">Justyna</td>
-                <td className="py-3 text-right font-bold">70.00 EUR</td>
-              </tr>
-              <tr>
-                <td className="py-3 font-medium">Oliwier</td>
-                <td className="py-3 italic">Justyna</td>
-                <td className="py-3 text-right font-bold">50.00 EUR</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="bg-[#ffffff] p-8 rounded-[32px] border border-[#5b616e]/10 shadow-sm flex flex-col justify-between">
+          <div className="p-3 bg-[#f8f9fa] text-[#0a2351] rounded-2xl w-max mb-6">
+            <Users size={24} />
+          </div>
+          <div>
+            <h3 className="text-[#5b616e] text-sm font-bold uppercase tracking-wider mb-2">Koszt na osobę</h3>
+            <div className="text-4xl font-bold text-[#0a0b0d] tracking-tighter">
+              460 <span className="text-xl text-[#5b616e]">EUR</span>
+            </div>
+            <p className="text-sm font-medium text-[#5b616e] mt-2">Średnio dla 4 uczestników</p>
+          </div>
         </div>
 
-        {/* Stopka raportu */}
-        <div className="mt-20 pt-8 border-t border-slate-100 text-[10px] text-slate-400 text-center font-sans italic">
-          Dokument wygenerowany automatycznie przez aplikację EuroPlanner. 🌍
+        <div className="bg-[#ffffff] p-8 rounded-[32px] border border-[#5b616e]/10 shadow-sm flex flex-col justify-between">
+          <div className="p-3 bg-[#f8f9fa] text-[#0a2351] rounded-2xl w-max mb-6">
+            <Calendar size={24} />
+          </div>
+          <div>
+            <h3 className="text-[#5b616e] text-sm font-bold uppercase tracking-wider mb-2">Czas trwania</h3>
+            <div className="text-4xl font-bold text-[#0a0b0d] tracking-tighter">
+              5 <span className="text-xl text-[#5b616e]">dni</span>
+            </div>
+            <p className="text-sm font-medium text-[#5b616e] mt-2">10.05.2026 - 15.05.2026</p>
+          </div>
         </div>
       </div>
 
+      {/* PODSUMOWANIE KATEGORII I ROZLICZEŃ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Lewa strona: Kategorie */}
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+          <div className="flex items-center gap-3 mb-8">
+            <PieChart className="text-[#3E67BF]" size={24} />
+            <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight">Struktura wydatków</h3>
+          </div>
+          
+          <div className="space-y-6">
+            {[
+              { name: "Zakwaterowanie", amount: 800, percent: 43, color: "bg-[#0a2351]" },
+              { name: "Transport", amount: 450, percent: 24, color: "bg-[#3E67BF]" },
+              { name: "Jedzenie", amount: 320, percent: 17, color: "bg-[#578bfa]" },
+              { name: "Atrakcje", amount: 270, percent: 16, color: "bg-[#aab8d5]" },
+            ].map((cat) => (
+              <div key={cat.name}>
+                <div className="flex justify-between items-end mb-2">
+                  <span className="font-bold text-[#0a0b0d]">{cat.name}</span>
+                  <div className="text-right">
+                    <span className="font-bold text-[#0a0b0d] block">{cat.amount} EUR</span>
+                    <span className="text-xs text-[#5b616e] font-medium">{cat.percent}% całości</span>
+                  </div>
+                </div>
+                <div className="w-full bg-[#f8f9fa] h-2.5 rounded-full overflow-hidden">
+                  <div className={`h-full rounded-full ${cat.color}`} style={{ width: `${cat.percent}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Prawa strona: Aktywność */}
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10 flex flex-col justify-center items-center text-center">
+          <div className="w-24 h-24 bg-[#eef0f3] rounded-full flex items-center justify-center mb-6">
+            <CheckCircle2 size={48} className="text-[#3E67BF]" />
+          </div>
+          <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight mb-4">Wszystko rozliczone!</h3>
+          <p className="text-[#5b616e] mb-8 max-w-sm">
+            Wszyscy uczestnicy uregulowali swoje długi. Wygeneruj i pobierz raport, aby zachować go w swoim archiwum.
+          </p>
+          <div className="w-full p-6 bg-[#f8f9fa] rounded-[24px] border border-[#5b616e]/10 text-left space-y-3">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-[#5b616e] font-bold">Łączna liczba paragonów:</span>
+              <span className="text-[#0a0b0d] font-bold">24 szt.</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-[#5b616e] font-bold">Zeskanowane przez OCR:</span>
+              <span className="text-[#0a0b0d] font-bold">18 szt.</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-[#5b616e] font-bold">Najdroższy wydatek:</span>
+              <span className="text-[#0a0b0d] font-bold">450 EUR</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
