@@ -14,6 +14,7 @@ async function registerAndLogin(request) {
 
   const registerResponse = await request.post('/api/auth/register', {
     data: credentials,
+    timeout: 10_000,
   });
 
   expect(registerResponse.ok()).toBeTruthy();
@@ -23,6 +24,7 @@ async function registerAndLogin(request) {
       name: credentials.name,
       password: credentials.password,
     },
+    timeout: 10_000,
   });
 
   expect(response.ok()).toBeTruthy();

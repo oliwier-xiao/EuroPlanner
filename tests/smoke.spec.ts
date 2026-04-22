@@ -10,7 +10,7 @@ function createCredentials() {
 }
 
 async function ensureLoggedOut(page) {
-  await page.request.post('/api/auth/logout');
+  await page.request.post('/api/auth/logout', { timeout: 10_000 });
 }
 
 async function fillStable(locator: Locator, value: string) {
@@ -35,6 +35,7 @@ async function registerAndSignIn(page) {
       surname: credentials.surname,
       password: credentials.password,
     },
+    timeout: 10_000,
   });
 
   expect(registerResponse.ok()).toBeTruthy();
@@ -44,6 +45,7 @@ async function registerAndSignIn(page) {
       name: credentials.name,
       password: credentials.password,
     },
+    timeout: 10_000,
   });
 
   expect(response.ok()).toBeTruthy();
@@ -117,6 +119,7 @@ test('Zalogowany user widzi liste podrózy', async ({ page }) => {
       end_date: '2026-06-05',
       budget_limit: 800,
     },
+    timeout: 10_000,
   });
 
   expect(createTripResponse.ok()).toBeTruthy();
