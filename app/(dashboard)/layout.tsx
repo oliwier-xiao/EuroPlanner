@@ -26,10 +26,19 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
-    // Tutaj w przyszłości dodasz: await supabase.auth.signOut()
+const handleLogout = async () => {
     console.log("Wylogowywanie użytkownika...");
-    router.push("/login"); // Przekierowanie na stronę logowania
+    
+    // Odpytujemy endpoint, który usuwa autoryzację/ciasteczka
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error("Błąd podczas wylogowywania:", e);
+    }
+
+    // Odświeżamy stan routera i wracamy na logowanie
+    router.refresh();
+    router.push("/login");
   };
 
   return (
