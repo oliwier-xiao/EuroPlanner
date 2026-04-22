@@ -28,7 +28,8 @@ test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveURL(/\/login/);
-  await expect(page.locator('h1')).toContainText('Logowanie');
+  // Zmiana: W nowym designie tytuł formularza to h2 "Witaj ponownie"
+  await expect(page.locator('h2')).toContainText('Witaj ponownie');
 });
 
 test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
@@ -42,9 +43,11 @@ test('Rejestracja i logowanie przekierowuja na dashboard', async ({ page }) => {
 test('Bledne dane logowania pokazuja blad', async ({ page }) => {
   await page.goto('/login');
 
-  await fillStable(page.getByPlaceholder('Imię'), 'zly');
-  await fillStable(page.getByPlaceholder('Hasło'), 'zly');
-  await page.getByRole('button', { name: 'Zaloguj się' }).click();
+  // Zmiana: używamy nowych placeholderów "admin" i "••••••••"
+  await fillStable(page.getByPlaceholder('admin'), 'zly');
+  await fillStable(page.getByPlaceholder('••••••••'), 'zly');
+  
+  await page.getByRole('button', { name: /Zaloguj się/i }).click();
   await expect(page).toHaveURL(/\/login/);
 });
 
@@ -55,15 +58,17 @@ test('Wylogowanie wraca na login', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/dashboard/);
 
-  await page.getByRole('button', { name: 'Wyloguj się' }).click();
+  // Zmiana: Przycisk w panelu bocznym nazywa się teraz "Wyloguj"
+  await page.getByRole('button', { name: 'Wyloguj' }).click();
 
   await expect(page).toHaveURL(/\/login/, { timeout: 20000 });
-  await expect(page.locator('h1')).toContainText('Logowanie');
+  await expect(page.locator('h2')).toContainText('Witaj ponownie');
 });
 
 test('Strona rejestracji sie laduje', async ({ page }) => {
   await page.goto('/register');
 
-  await expect(page.locator('h1')).toContainText('Rejestracja');
+  // Zmiana: W nowym designie tytuł formularza to h2 "Załóż konto"
+  await expect(page.locator('h2')).toContainText('Załóż konto');
   await expect(page.locator('a[href="/login"]')).toBeVisible();
 });
