@@ -58,6 +58,9 @@ test('Wylogowanie wraca na login', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/dashboard/);
 
+  // Otwórz sidebar klikając przycisk menu
+  await page.locator('header button').first().click();
+
   // Zmiana: Przycisk w panelu bocznym nazywa się teraz "Wyloguj"
   await page.getByRole('button', { name: 'Wyloguj' }).click();
 

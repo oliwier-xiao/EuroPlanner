@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const [currency, setCurrency] = useState("EUR");
   const [notifications, setNotifications] = useState(true);
 
-  // LOGIKA AWATARA
+ 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,7 +38,7 @@ export default function SettingsPage() {
     }
   };
 
-  // LOGIKA USUWANIA KONTA
+  
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
@@ -56,10 +56,9 @@ export default function SettingsPage() {
   };
 
   return (
-    // DODANO pt-10 md:pt-16 DLA ODSTĘPU OD GÓRY
     <div className="pt-10 md:pt-16 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-20 px-4">
       
-      {/* NAGŁÓWEK */}
+      
       <div>
         <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight mb-2">Ustawienia konta</h2>
         <p className="text-[#5b616e]">Zarządzaj swoim profilem i preferencjami.</p>
@@ -67,8 +66,8 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
         
-        {/* KARTA 1: PROFIL */}
-        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+        
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/40 shadow-sm p-8 md:p-10">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-2 bg-[#f8f9fa] rounded-xl text-[#0a2351]">
               <User size={24} />
@@ -109,25 +108,27 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Imię i nazwisko</label>
+                  
                   <input 
                     type="text" 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
+                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/40 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Adres E-mail</label>
+                  
                   <input 
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
+                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/40 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
                   />
                 </div>
               </div>
               <div className="flex justify-end">
-                <button className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm">
+                <button className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10">
                   <Save size={18} />
                   Zapisz zmiany
                 </button>
@@ -136,8 +137,8 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* KARTA 2: PREFERENCJE */}
-        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+        
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/40 shadow-sm p-8 md:p-10">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-2 bg-[#f8f9fa] rounded-xl text-[#0a2351]">
               <Globe size={24} />
@@ -146,9 +147,10 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[32px] hover:bg-[#f8f9fa] transition-colors border border-transparent hover:border-[#5b616e]/10">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[32px] hover:bg-[#f8f9fa] transition-colors border border-transparent hover:border-[#5b616e]/40">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-[#ffffff] shadow-sm rounded-full text-[#3E67BF]">
+                <div className="p-3 bg-[#ffffff] shadow-sm rounded-full text-[#3E67BF] border border-[#5b616e]/10">
                   <CreditCard size={20} />
                 </div>
                 <div>
@@ -156,10 +158,11 @@ export default function SettingsPage() {
                   <p className="text-sm text-[#5b616e]">Waluta dla nowych podróży</p>
                 </div>
               </div>
+              
               <select 
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="bg-[#ffffff] border border-[#5b616e]/20 rounded-full px-6 py-3 text-[#0a0b0d] font-bold focus:outline-none focus:border-[#0a2351] transition-colors appearance-none cursor-pointer text-center min-w-[120px]"
+                className="bg-[#ffffff] border border-[#5b616e]/40 rounded-full px-6 py-3 text-[#0a0b0d] font-bold focus:outline-none focus:border-[#0a2351] transition-colors appearance-none cursor-pointer text-center min-w-[120px]"
               >
                 <option value="EUR">EUR (€)</option>
                 <option value="PLN">PLN (zł)</option>
@@ -167,9 +170,10 @@ export default function SettingsPage() {
               </select>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[32px] hover:bg-[#f8f9fa] transition-colors border border-transparent hover:border-[#5b616e]/10">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[32px] hover:bg-[#f8f9fa] transition-colors border border-transparent hover:border-[#5b616e]/40">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-[#ffffff] shadow-sm rounded-full text-[#3E67BF]">
+                <div className="p-3 bg-[#ffffff] shadow-sm rounded-full text-[#3E67BF] border border-[#5b616e]/10">
                   <Bell size={20} />
                 </div>
                 <div>
@@ -179,16 +183,16 @@ export default function SettingsPage() {
               </div>
               <button 
                 onClick={() => setNotifications(!notifications)}
-                className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${notifications ? 'bg-[#0a2351]' : 'bg-[#eef0f3]'}`}
+                className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${notifications ? 'bg-[#0a2351]' : 'bg-[#eef0f3] border border-[#5b616e]/20'}`}
               >
-                <div className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${notifications ? 'translate-x-6' : 'translate-x-0'}`} />
+                <div className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${notifications ? 'translate-x-6' : 'translate-x-0 border border-[#5b616e]/10'}`} />
               </button>
             </div>
           </div>
         </div>
 
-        {/* KARTA 3: BEZPIECZEŃSTWO */}
-        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+        
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/40 shadow-sm p-8 md:p-10">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-2 bg-[#f8f9fa] rounded-xl text-[#0a2351]">
               <Shield size={24} />
@@ -196,9 +200,10 @@ export default function SettingsPage() {
             <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight">Bezpieczeństwo</h3>
           </div>
 
+          
           <Link 
             href="/settings/password"
-            className="flex items-center justify-between p-6 rounded-[32px] bg-[#f8f9fa] hover:bg-[#eef0f3] transition-colors group border border-transparent hover:border-[#0a2351]/10"
+            className="flex items-center justify-between p-6 rounded-[32px] bg-[#f8f9fa] hover:bg-[#eef0f3] transition-colors group border border-[#5b616e]/10 hover:border-[#0a2351]/30"
           >
             <div className="flex items-center gap-4">
               <Lock size={20} className="text-[#3E67BF]" />
@@ -211,8 +216,8 @@ export default function SettingsPage() {
           </Link>
         </div>
 
-        {/* KARTA 4: STREFA NIEBEZPIECZNA */}
-        <div className="bg-[#ffffff] rounded-[40px] border border-red-100 shadow-sm p-8 md:p-10 mt-12">
+        
+        <div className="bg-[#ffffff] rounded-[40px] border border-red-200 shadow-sm p-8 md:p-10 mt-12">
           <h3 className="text-xl font-bold text-red-600 tracking-tight mb-6">Strefa niebezpieczna</h3>
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
@@ -222,7 +227,7 @@ export default function SettingsPage() {
             </div>
             <button 
               onClick={openDeleteModal}
-              className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-[56px] transition-colors flex items-center gap-2 shrink-0 text-sm"
+              className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-[56px] transition-colors flex items-center gap-2 shrink-0 text-sm border border-red-200"
             >
               <Trash2 size={18} />
               Usuń konto
@@ -231,10 +236,11 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* MODAL USUNIĘCIA KONTA */}
+      
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#0a0b0d]/40 backdrop-blur-md flex justify-center items-center p-4">
-          <div className="bg-[#ffffff] border border-[#5b616e]/20 w-full max-w-md rounded-[40px] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+          
+          <div className="bg-[#ffffff] border border-[#5b616e]/40 w-full max-w-md rounded-[40px] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex flex-col items-center text-center">
               <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 text-red-500">
                 <AlertCircle size={40} />
@@ -258,7 +264,7 @@ export default function SettingsPage() {
                 </button>
                 <button 
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="w-full py-4 text-[#0a2351] font-bold hover:bg-[#f8f9fa] rounded-[56px] transition-colors"
+                  className="w-full py-4 text-[#0a2351] font-bold hover:bg-[#f8f9fa] rounded-[56px] transition-colors border border-transparent hover:border-[#5b616e]/20"
                 >
                   Anuluj
                 </button>
