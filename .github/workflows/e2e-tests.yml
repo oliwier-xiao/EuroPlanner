@@ -46,14 +46,18 @@ jobs:
 
       - name: Czekaj aż aplikacja wstanie
         run: |
+          docker ps -a --filter "name=europlanner"
+
           for i in {1..60}; do
             home_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ || true)
             api_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/auth/me || true)
 
-            if [ "$home_code" != "000" ] && [ "$api_code" != "000" ]; then
-              echo "App is up (home: $home_code, api: $api_code)"
+            if [ "$home_code" = "200" ] && { [ "$api_code" = "200" ] || [ "$api_code" = "401" ]; }; then
+              echo "App is ready (home: $home_code, api: $api_code)"
               exit 0
             fi
+
+            echo "Waiting... (home: $home_code, api: $api_code)"
             sleep 2
           done
 

@@ -38,7 +38,9 @@ async function registerAndSignIn(page) {
     timeout: 10_000,
   });
 
-  expect(registerResponse.ok()).toBeTruthy();
+  if (!registerResponse.ok()) {
+    throw new Error(`Register failed: ${registerResponse.status()} ${await registerResponse.text()}`);
+  }
 
   const response = await page.request.post('/api/auth/login', {
     data: {
@@ -48,7 +50,9 @@ async function registerAndSignIn(page) {
     timeout: 10_000,
   });
 
-  expect(response.ok()).toBeTruthy();
+  if (!response.ok()) {
+    throw new Error(`Login failed: ${response.status()} ${await response.text()}`);
+  }
 
   return credentials;
 }
@@ -122,7 +126,9 @@ test('Zalogowany user widzi liste podrózy', async ({ page }) => {
     timeout: 10_000,
   });
 
-  expect(createTripResponse.ok()).toBeTruthy();
+  if (!createTripResponse.ok()) {
+    throw new Error(`Create trip failed: ${createTripResponse.status()} ${await createTripResponse.text()}`);
+  }
 
   await page.goto('/trips');
 

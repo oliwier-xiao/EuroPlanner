@@ -17,7 +17,9 @@ async function registerAndLogin(request) {
     timeout: 10_000,
   });
 
-  expect(registerResponse.ok()).toBeTruthy();
+  if (!registerResponse.ok()) {
+    throw new Error(`Register failed: ${registerResponse.status()} ${await registerResponse.text()}`);
+  }
 
   const response = await request.post('/api/auth/login', {
     data: {
@@ -27,7 +29,9 @@ async function registerAndLogin(request) {
     timeout: 10_000,
   });
 
-  expect(response.ok()).toBeTruthy();
+  if (!response.ok()) {
+    throw new Error(`Login failed: ${response.status()} ${await response.text()}`);
+  }
 
   return credentials;
 }
