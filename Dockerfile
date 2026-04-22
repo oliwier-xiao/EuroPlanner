@@ -10,7 +10,7 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 COPY package*.json ./
-RUN npm install
+RUN npm install -g npm@latest
 COPY . .
 
 # Budujemy aplikację Next.js (teraz widzi klucze Supabase)

@@ -1,31 +1,9 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Script from "next/script";
-
-function initParticles() {
-  const particlesJS = (window as typeof window & {
-    particlesJS?: (tagId: string, config: unknown) => void;
-  }).particlesJS;
-
-  if (!particlesJS) return;
-
-  particlesJS("particles-js", {
-    particles: {
-      number: { value: 70, density: { enable: true, value_area: 900 } },
-      color: { value: "#38bdf8" },
-      shape: { type: "circle" },
-      opacity: { value: 0.7, random: false },
-      size: { value: 3, random: true },
-      line_linked: {
-        enable: true,
-        distance: 140,
-        color: "#38bdf8",
-        opacity: 0.25,
-        width: 1,
-      },
-      move: {
-        enable: true,
 import { Eye, EyeOff, ArrowRight, User, Lock, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
