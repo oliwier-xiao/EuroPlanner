@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { getSupabaseServer } from "@/lib/supabaseServer";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
+
+export const dynamic = "force-dynamic";
 
 type TripRow = {
   trip_id: string;
@@ -63,6 +65,13 @@ async function getAuthenticatedUser() {
 }
 
 export async function GET() {
+  let supabaseServer;
+  try {
+    supabaseServer = getSupabaseServer();
+  } catch {
+    return NextResponse.json({ success: false, message: "Brak konfiguracji serwera" }, { status: 500 });
+  }
+
   const user = await getAuthenticatedUser();
 
   if (!user) {
@@ -136,6 +145,13 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  let supabaseServer;
+  try {
+    supabaseServer = getSupabaseServer();
+  } catch {
+    return NextResponse.json({ success: false, message: "Brak konfiguracji serwera" }, { status: 500 });
+  }
+
   const user = await getAuthenticatedUser();
 
   if (!user) {

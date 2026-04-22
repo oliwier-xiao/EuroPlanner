@@ -1,9 +1,17 @@
 import { test, expect, Locator } from '@playwright/test';
 
-const LOGIN_PAYLOAD = {
-  name: 'Michał',
-  password: 'balwan',
-};
+function createCredentials() {
+  const suffix = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+  return {
+    name: `autotest_${suffix}`,
+    surname: 'Smoke',
+    password: 'test1234',
+  };
+}
+
+async function ensureLoggedOut(page) {
+  await page.request.post('/api/auth/logout');
+}
 
 async function fillStable(locator: Locator, value: string) {
   await expect(locator).toBeVisible();
@@ -18,15 +26,33 @@ async function fillStable(locator: Locator, value: string) {
   }).toPass({ timeout: 10000 });
 }
 
-async function signIn(page) {
+async function registerAndSignIn(page) {
+  const credentials = createCredentials();
+
+  const registerResponse = await page.request.post('/api/auth/register', {
+    data: {
+      name: credentials.name,
+      surname: credentials.surname,
+      password: credentials.password,
+    },
+  });
+
+  expect(registerResponse.ok()).toBeTruthy();
+
   const response = await page.request.post('/api/auth/login', {
-    data: LOGIN_PAYLOAD,
+    data: {
+      name: credentials.name,
+      password: credentials.password,
+    },
   });
 
   expect(response.ok()).toBeTruthy();
+
+  return credentials;
 }
 
 test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
+  await ensureLoggedOut(page);
   await page.goto('/');
 
   await expect(page).toHaveURL(/\/login/);
@@ -35,7 +61,7 @@ test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
 });
 
 test('Sesja po logowaniu wpuszcza na dashboard i pokazuje dane konta', async ({ page }) => {
-  await signIn(page);
+  await registerAndSignIn(page);
   await page.goto('/dashboard', { waitUntil: 'commit' });
 
   await expect(page).toHaveURL(/\/dashboard/);
@@ -45,6 +71,7 @@ test('Sesja po logowaniu wpuszcza na dashboard i pokazuje dane konta', async ({ 
 });
 
 test('Bledne dane logowania pokazuja blad', async ({ page }) => {
+  await ensureLoggedOut(page);
   await page.goto('/login');
 
   // Zmiana: używamy nowych placeholderów "admin" i "••••••••"
@@ -56,7 +83,7 @@ test('Bledne dane logowania pokazuja blad', async ({ page }) => {
 });
 
 test('Wylogowanie wraca na login', async ({ page }) => {
-  await signIn(page);
+  await registerAndSignIn(page);
 
   await page.goto('/dashboard');
 
@@ -70,6 +97,7 @@ test('Wylogowanie wraca na login', async ({ page }) => {
 });
 
 test('Strona rejestracji sie laduje', async ({ page }) => {
+  await ensureLoggedOut(page);
   await page.goto('/register');
 
   // Zmiana: W nowym designie tytuł formularza to h2 "Załóż konto"
@@ -78,18 +106,24 @@ test('Strona rejestracji sie laduje', async ({ page }) => {
 });
 
 test('Zalogowany user widzi liste podrózy', async ({ page }) => {
-  await signIn(page);
+  await registerAndSignIn(page);
+
+  const tripTitle = `Smoke trip ${Date.now()}`;
+  const createTripResponse = await page.request.post('/api/trips', {
+    data: {
+      title: tripTitle,
+      description: 'Trip stworzony w smoke tescie',
+      start_date: '2026-06-01',
+      end_date: '2026-06-05',
+      budget_limit: 800,
+    },
+  });
+
+  expect(createTripResponse.ok()).toBeTruthy();
 
   await page.goto('/trips');
 
   await expect(page).toHaveURL(/\/trips/);
   await expect(page.getByRole('heading', { name: 'Moje Podróże' })).toBeVisible();
-
-  const emptyState = page.getByText('Nie znaleziono podróży pasujących do filtrów.');
-  const tripCards = page.locator('h3');
-  const emptyVisible = await emptyState.isVisible().catch(() => false);
-
-  if (!emptyVisible) {
-    await expect(tripCards.first()).toBeVisible();
-  }
+  await expect(page.getByRole('heading', { level: 3, name: tripTitle })).toBeVisible();
 });

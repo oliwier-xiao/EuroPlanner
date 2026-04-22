@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Zdefiniuj adres bazowy. 
  * Jeśli zmienna środowiskowa BASE_URL nie istnieje, użyj localhost.
  */
-const PORT = 3000;
+const PORT = Number(process.env.PLAYWRIGHT_PORT || 3100);
 const baseURL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -28,9 +28,9 @@ export default defineConfig({
   webServer: process.env.CI
     ? undefined
     : {
-        command: 'npm run dev',
+        command: `npm run dev -- --port ${PORT}`,
         url: `http://localhost:${PORT}`,
-        reuseExistingServer: true,
+        reuseExistingServer: false,
         timeout: 120 * 1000, // Malinka może potrzebować więcej czasu na start (2 minuty)
       },
 
