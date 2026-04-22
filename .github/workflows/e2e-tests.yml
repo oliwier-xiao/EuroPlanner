@@ -29,7 +29,8 @@ jobs:
           # Przekazujemy klucze jako --build-arg, aby Next.js mógł je 'zaszyć' w kodzie
           docker build -t europlanner \
             --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" .
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+            --build-arg SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" .
           
           docker stop europlanner || true
           docker rm europlanner || true
@@ -38,12 +39,27 @@ jobs:
           docker run -d --name europlanner -p 3000:3000 --restart always \
             -e NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
             -e NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+            -e SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             europlanner
-      
-          sleep 15
+
+      - name: Czekaj aż aplikacja wstanie
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://localhost:3000/ > /dev/null; then
+              echo "App is up"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "App did not start in time"
+          docker logs europlanner
+          exit 1
 
       - name: Odpalenie testów E2E
         run: npx playwright test
         env:
+          BASE_URL: http://localhost:3000
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
