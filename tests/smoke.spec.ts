@@ -1,5 +1,7 @@
 import { test, expect, Locator } from '@playwright/test';
 
+const backendE2EEnabled = process.env.BACKEND_E2E !== 'false';
+
 function createCredentials() {
   const suffix = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
   return {
@@ -67,6 +69,7 @@ test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
 });
 
 test('Sesja po logowaniu wpuszcza na dashboard i pokazuje dane konta', async ({ page }) => {
+  test.skip(!backendE2EEnabled, 'Pomijam test backendowy: Supabase niedostępny w tym środowisku CI.');
   await registerAndSignIn(page);
   await page.goto('/dashboard', { waitUntil: 'commit' });
 
@@ -77,6 +80,7 @@ test('Sesja po logowaniu wpuszcza na dashboard i pokazuje dane konta', async ({ 
 });
 
 test('Bledne dane logowania pokazuja blad', async ({ page }) => {
+  test.skip(!backendE2EEnabled, 'Pomijam test backendowy: Supabase niedostępny w tym środowisku CI.');
   await ensureLoggedOut(page);
   await page.goto('/login');
 
@@ -89,6 +93,7 @@ test('Bledne dane logowania pokazuja blad', async ({ page }) => {
 });
 
 test('Wylogowanie wraca na login', async ({ page }) => {
+  test.skip(!backendE2EEnabled, 'Pomijam test backendowy: Supabase niedostępny w tym środowisku CI.');
   await registerAndSignIn(page);
 
   await page.goto('/dashboard');
@@ -112,6 +117,7 @@ test('Strona rejestracji sie laduje', async ({ page }) => {
 });
 
 test('Zalogowany user widzi liste podrózy', async ({ page }) => {
+  test.skip(!backendE2EEnabled, 'Pomijam test backendowy: Supabase niedostępny w tym środowisku CI.');
   await registerAndSignIn(page);
 
   const tripTitle = `Smoke trip ${Date.now()}`;

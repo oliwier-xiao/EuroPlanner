@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+const backendE2EEnabled = process.env.BACKEND_E2E !== 'false';
+
+test.skip(!backendE2EEnabled, 'Pomijam testy backendowe: Supabase niedostępny w tym środowisku CI.');
+
 function createCredentials() {
   const suffix = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
   return {

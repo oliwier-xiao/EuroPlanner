@@ -65,10 +65,31 @@ jobs:
           docker logs europlanner
           exit 1
 
+      - name: Sprawdź dostępność Supabase dla testów backendowych
+        id: backend_probe
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          set +e
+          probe_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 \
+            -H "apikey: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
+            "${NEXT_PUBLIC_SUPABASE_URL}/rest/v1/" || true)
+
+          if [ "$probe_code" = "200" ] || [ "$probe_code" = "401" ]; then
+            echo "Supabase reachable (HTTP $probe_code)."
+            echo "backend_e2e=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Supabase unreachable or misconfigured (HTTP $probe_code). Backend E2E tests will be skipped."
+            echo "backend_e2e=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Odpalenie testów E2E
         run: npx playwright test
         env:
           BASE_URL: http://127.0.0.1:3000
+          BACKEND_E2E: ${{ steps.backend_probe.outputs.backend_e2e }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
