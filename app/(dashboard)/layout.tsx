@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { 
@@ -11,6 +11,10 @@ import {
   Bell,
   User
 } from "lucide-react";
+
+type CurrentUserState = {
+  displayName: string;
+};
 
 const NAV_ITEMS = [
   { name: "Pulpit", href: "/dashboard", icon: LayoutDashboard },
@@ -25,6 +29,37 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<CurrentUserState>({ displayName: "Użytkownik" });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCurrentUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me", {
+          credentials: "include",
+        });
+        const payload = await response.json();
+
+        if (!cancelled && response.ok && payload?.user?.displayName) {
+          setCurrentUser({ displayName: payload.user.displayName });
+          return;
+        }
+      } catch (error) {
+        console.error("Nie udało się pobrać danych zalogowanego użytkownika:", error);
+      }
+
+      if (!cancelled) {
+        setCurrentUser({ displayName: "Użytkownik" });
+      }
+    };
+
+    loadCurrentUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
 const handleLogout = async () => {
     console.log("Wylogowywanie użytkownika...");
@@ -112,7 +147,9 @@ const handleLogout = async () => {
               <div className="w-9 h-9 rounded-full bg-white/20 border border-white/10 flex items-center justify-center text-white">
                 <User size={20} />
               </div>
-              <span className="hidden sm:block text-sm font-bold text-white pr-2">Michał</span>
+              <span className="hidden sm:block text-sm font-bold text-white pr-2">
+                {currentUser.displayName}
+              </span>
             </button>
           </div>
         </header>
