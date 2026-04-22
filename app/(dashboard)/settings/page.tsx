@@ -1,155 +1,272 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation"; 
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { 
+  User, 
+  Bell, 
+  Shield, 
+  Globe, 
+  CreditCard, 
+  Lock, 
+  Trash2,
+  Save,
+  Camera,
+  ChevronRight,
+  AlertCircle
+} from "lucide-react";
 
 export default function SettingsPage() {
-  const router = useRouter(); 
-
+  const [name, setName] = useState("Michał");
+  const [email, setEmail] = useState("michal@example.com");
   const [currency, setCurrency] = useState("EUR");
   const [notifications, setNotifications] = useState(true);
+
+  // LOGIKA AWATARA
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setAvatarUrl(imageUrl);
+    }
+  };
+
+  // LOGIKA USUWANIA KONTA
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isDeleteModalOpen && countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [isDeleteModalOpen, countdown]);
+
+  const openDeleteModal = () => {
+    setCountdown(5);
+    setIsDeleteModalOpen(true);
+  };
 
   return (
-    <>
-      {/* GŁÓWNA ZAWARTOŚĆ STRONY */}
-      <div className="p-4 md:p-8 max-w-4xl space-y-8 animate-in fade-in duration-300 relative">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Ustawienia</h1>
-          <p className="text-slate-400">Zarządzaj swoim kontem i preferencjami aplikacji.</p>
-        </div>
+    // DODANO pt-10 md:pt-16 DLA ODSTĘPU OD GÓRY
+    <div className="pt-10 md:pt-16 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-20 px-4">
+      
+      {/* NAGŁÓWEK */}
+      <div>
+        <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight mb-2">Ustawienia konta</h2>
+        <p className="text-[#5b616e]">Zarządzaj swoim profilem i preferencjami.</p>
+      </div>
 
-        {/* SEKCJA: PROFIL */}
-        <section className="bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden">
-          <div className="p-6 border-b border-slate-700">
-            <h3 className="text-lg font-bold text-white">Twój Profil</h3>
+      <div className="space-y-6">
+        
+        {/* KARTA 1: PROFIL */}
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-[#f8f9fa] rounded-xl text-[#0a2351]">
+              <User size={24} />
+            </div>
+            <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight">Twój Profil</h3>
           </div>
-          <div className="p-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Nazwa użytkownika</label>
-                <input 
-                  type="text" 
-                  defaultValue="admin" 
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 transition-colors"
+
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div 
+              className="relative group cursor-pointer shrink-0" 
+              onClick={handleAvatarClick}
+            >
+              {avatarUrl ? (
+                <img 
+                  src={avatarUrl} 
+                  alt="Avatar" 
+                  className="w-24 h-24 rounded-full object-cover shadow-inner"
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Email</label>
-                <input 
-                  type="email" 
-                  defaultValue="admin@europlanner.pl" 
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 transition-colors"
-                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-[#3E67BF] text-white flex items-center justify-center text-3xl font-bold shadow-inner">
+                  {name.charAt(0)}
+                </div>
+              )}
+              <div className="absolute inset-0 bg-[#0a0b0d]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Camera className="text-white" size={24} />
               </div>
             </div>
-            <button className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-bold rounded-lg transition-all cursor-pointer">
-              Zapisz zmiany
-            </button>
-          </div>
-        </section>
 
-        {/* SEKCJA: PREFERENCJE PODRÓŻY */}
-        <section className="bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden">
-          <div className="p-6 border-b border-slate-700">
-            <h3 className="text-lg font-bold text-white">Preferencje Podróży</h3>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              className="hidden" 
+            />
+
+            <div className="flex-1 w-full space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Imię i nazwisko</label>
+                  <input 
+                    type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Adres E-mail</label>
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/10 rounded-[56px] px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm">
+                  <Save size={18} />
+                  Zapisz zmiany
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="p-6 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <p className="text-white font-medium">Domyślna waluta rozliczeń</p>
-                <p className="text-sm text-slate-400">W tej walucie będą wyświetlane Twoje raporty i bilanse.</p>
+        </div>
+
+        {/* KARTA 2: PREFERENCJE */}
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-[#f8f9fa] rounded-xl text-[#0a2351]">
+              <Globe size={24} />
+            </div>
+            <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight">Preferencje</h3>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[32px] hover:bg-[#f8f9fa] transition-colors border border-transparent hover:border-[#5b616e]/10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-[#ffffff] shadow-sm rounded-full text-[#3E67BF]">
+                  <CreditCard size={20} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#0a0b0d]">Domyślna waluta</h4>
+                  <p className="text-sm text-[#5b616e]">Waluta dla nowych podróży</p>
+                </div>
               </div>
               <select 
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 transition-colors cursor-pointer min-w-[120px]"
+                className="bg-[#ffffff] border border-[#5b616e]/20 rounded-full px-6 py-3 text-[#0a0b0d] font-bold focus:outline-none focus:border-[#0a2351] transition-colors appearance-none cursor-pointer text-center min-w-[120px]"
               >
-                <option value="EUR">Euro (EUR)</option>
-                <option value="PLN">Złoty (PLN)</option>
-                <option value="CZK">Korona (CZK)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="PLN">PLN (zł)</option>
+                <option value="USD">USD ($)</option>
               </select>
             </div>
 
-            <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-700/50">
-              <div>
-                <p className="text-white font-medium">Powiadomienia o budżecie</p>
-                <p className="text-sm text-slate-400">Otrzymuj alerty po przekroczeniu 90% limitu.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[32px] hover:bg-[#f8f9fa] transition-colors border border-transparent hover:border-[#5b616e]/10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-[#ffffff] shadow-sm rounded-full text-[#3E67BF]">
+                  <Bell size={20} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#0a0b0d]">Powiadomienia E-mail</h4>
+                  <p className="text-sm text-[#5b616e]">Otrzymuj raporty i podsumowania</p>
+                </div>
               </div>
               <button 
                 onClick={() => setNotifications(!notifications)}
-                className={`w-12 h-6 rounded-full transition-colors relative cursor-pointer ${notifications ? 'bg-sky-500' : 'bg-slate-700'}`}
+                className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${notifications ? 'bg-[#0a2351]' : 'bg-[#eef0f3]'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${notifications ? 'left-7' : 'left-1'}`} />
+                <div className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${notifications ? 'translate-x-6' : 'translate-x-0'}`} />
               </button>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* SEKCJA: BEZPIECZEŃSTWO */}
-        <section className="bg-slate-800/50 rounded-2xl border border-slate-700 overflow-hidden">
-          <div className="p-6 border-b border-slate-700">
-            <h3 className="text-lg font-bold text-white">Bezpieczeństwo</h3>
-          </div>
-          <div className="p-6 space-y-4">
-           <button 
-  onClick={() => router.push("/settings/password")} // Dodaj to przekierowanie!
-  className="text-sky-400 hover:text-sky-300 text-sm font-medium transition-colors cursor-pointer"
->
-  Zmień hasło dostępu
-</button>
-            <div className="pt-4 border-t border-slate-700/50">
-              <button 
-                onClick={() => setIsDeleteModalOpen(true)}
-                className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors cursor-pointer"
-              >
-                Usuń konto trwale
-              </button>
+        {/* KARTA 3: BEZPIECZEŃSTWO */}
+        <div className="bg-[#ffffff] rounded-[40px] border border-[#5b616e]/10 shadow-sm p-8 md:p-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-[#f8f9fa] rounded-xl text-[#0a2351]">
+              <Shield size={24} />
             </div>
+            <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight">Bezpieczeństwo</h3>
           </div>
-        </section>
 
-        {/* STOPKA Z WERSJĄ */}
-        <div className="text-center text-slate-600 text-xs py-4">
-          EuroPlanner v1.0.0-beta • Projekt Akademicki
+          <Link 
+            href="/settings/password"
+            className="flex items-center justify-between p-6 rounded-[32px] bg-[#f8f9fa] hover:bg-[#eef0f3] transition-colors group border border-transparent hover:border-[#0a2351]/10"
+          >
+            <div className="flex items-center gap-4">
+              <Lock size={20} className="text-[#3E67BF]" />
+              <div>
+                <h4 className="font-bold text-[#0a0b0d]">Zmień hasło</h4>
+                <p className="text-sm text-[#5b616e]">Zaktualizuj swoje hasło dostępowe</p>
+              </div>
+            </div>
+            <ChevronRight size={20} className="text-[#5b616e] group-hover:text-[#0a2351] group-hover:translate-x-1 transition-all" />
+          </Link>
+        </div>
+
+        {/* KARTA 4: STREFA NIEBEZPIECZNA */}
+        <div className="bg-[#ffffff] rounded-[40px] border border-red-100 shadow-sm p-8 md:p-10 mt-12">
+          <h3 className="text-xl font-bold text-red-600 tracking-tight mb-6">Strefa niebezpieczna</h3>
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+              <h4 className="font-bold text-[#0a0b0d]">Usuń konto</h4>
+              <p className="text-sm text-[#5b616e] mt-1">Trwale usuń swoje konto i wszystkie dane podróży.</p>
+            </div>
+            <button 
+              onClick={openDeleteModal}
+              className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-[56px] transition-colors flex items-center gap-2 shrink-0 text-sm"
+            >
+              <Trash2 size={18} />
+              Usuń konto
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ⚠️ MODAL WYCIĄGNIĘTY POZA GŁÓWNY DIV (z dodanym z-[100], żeby przykrył wszystko) ⚠️ */}
+      {/* MODAL USUNIĘCIA KONTA */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 w-screen h-screen bg-slate-950/80 backdrop-blur-sm z-[100] flex justify-center items-center p-4">
-          <div className="bg-slate-800 border border-red-500/50 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 p-6 text-center">
-            
-            <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-              ⚠️
-            </div>
-            
-            <h2 className="text-xl font-bold text-white mb-2">Usuwanie konta</h2>
-            <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-              Czy na pewno chcesz bezpowrotnie usunąć swoje konto oraz wszystkie zapisane podróże? Tej operacji <strong className="text-slate-200">nie można</strong> cofnąć.
-            </p>
-            
-            <div className="flex gap-3">
-                
-              <button 
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="flex-1 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition-colors cursor-pointer"
-              >
-                Anuluj
-              </button>
-              <button 
-                onClick={() => {
-                  alert("Miejsce na logikę kasującą użytkownika!");
-                  setIsDeleteModalOpen(false);
-                }}
-                className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-all shadow-lg shadow-red-500/20 cursor-pointer"
-              >
-                Tak, usuń trwale
-              </button>
+        <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#0a0b0d]/40 backdrop-blur-md flex justify-center items-center p-4">
+          <div className="bg-[#ffffff] border border-[#5b616e]/20 w-full max-w-md rounded-[40px] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 text-red-500">
+                <AlertCircle size={40} />
+              </div>
+              <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight mb-4">Czy na pewno?</h2>
+              <p className="text-[#5b616e] mb-8">
+                Tej operacji nie można cofnąć. Wszystkie Twoje podróże i rozliczenia zostaną trwale usunięte.
+              </p>
+              <div className="flex flex-col w-full gap-3">
+                <button 
+                  disabled={countdown > 0}
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className={`w-full py-4 font-bold rounded-[56px] transition-all flex items-center justify-center gap-2
+                    ${countdown > 0 
+                      ? 'bg-[#eef0f3] text-[#5b616e] cursor-not-allowed opacity-70' 
+                      : 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200'
+                    }`}
+                >
+                  <Trash2 size={20} />
+                  Usuń konto {countdown > 0 && `(${countdown}s)`}
+                </button>
+                <button 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="w-full py-4 text-[#0a2351] font-bold hover:bg-[#f8f9fa] rounded-[56px] transition-colors"
+                >
+                  Anuluj
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

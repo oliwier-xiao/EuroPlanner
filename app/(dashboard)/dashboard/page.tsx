@@ -27,5 +27,6 @@ export default async function DashboardPage() {
 
   const userName = userId ? await getUserName(userId) : null;
 
+  // Przekazujemy imię do komponentu klienta
   return <DashboardClient userName={userName} />;
 }

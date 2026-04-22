@@ -2,7 +2,25 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname, useParams, useRouter } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
+import { 
+  LayoutDashboard, // Nowa ikona dla Podsumowania
+  Wallet,          // Nowa ikona dla Budżetu
+  Receipt, 
+  Map as MapIcon, 
+  Users2, 
+  FileText,
+  ChevronLeft
+} from "lucide-react";
+
+const TRIP_NAV_ITEMS = [
+  { name: "Podsumowanie", href: "", icon: LayoutDashboard }, 
+  { name: "Budżet", href: "/budget", icon: Wallet },
+  { name: "Wydatki", href: "/expenses", icon: Receipt },
+  { name: "Trasa", href: "/route", icon: MapIcon },
+  { name: "Rozliczenia", href: "/settlements", icon: Users2 },
+  { name: "Raport", href: "/report", icon: FileText },
+];
 
 export default function TripLayout({
   children,
@@ -10,66 +28,64 @@ export default function TripLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const params = useParams();
-  const router = useRouter();
-  const tripId = params.tripId;
+  const { tripId } = useParams();
 
-  // W przyszłości pobierzemy te dane z bazy na podstawie tripId
-  const tripName = "Majówka w Rzymie"; 
-
-const tabs = [
-    { id: "summary", label: "Podsumowanie", path: `/trips/${tripId}` },
-    { id: "expenses", label: "Wydatki & OCR", path: `/trips/${tripId}/expenses` },
-    { id: "route", label: "Plan trasy", path: `/trips/${tripId}/route` },
-    { id: "settlements", label: "Rozliczenia", path: `/trips/${tripId}/settlements` },
-    { id: "budget", label: "Budżet", path: `/trips/${tripId}/budget` },
-    { id: "report", label: "Raporty", path: `/trips/${tripId}/report` },
-  ];
+  // Funkcja pomocnicza do sprawdzania aktywnego linku
+  const isActive = (href: string) => {
+    const fullPath = `/trips/${tripId}${href}`;
+    return pathname === fullPath;
+  };
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      {/* POWRÓT I NAGŁÓWEK */}
-      <div className="flex flex-col gap-4">
-        <button 
-          onClick={() => router.push("/dashboard")}
-          className="text-slate-400 hover:text-white text-sm flex items-center gap-2 transition-colors cursor-pointer w-fit"
-        >
-          ← Powrót do pulpitu
-        </button>
-        <div className="flex justify-between items-end">
-          <div>
-            <h1 className="text-4xl font-bold text-white">{tripName}</h1>
-            <p className="text-slate-400 mt-1">ID Podróży: <span className="text-sky-400 font-mono">{tripId}</span></p>
+    <div className="flex flex-col h-full bg-[#ffffff] animate-in fade-in duration-500">
+      {/* GÓRNY PASEK NAWIGACJI WEWNĄTRZ PODRÓŻY */}
+      <div className="border-b border-[#5b616e]/10 bg-[#ffffff] sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          
+          {/* Przycisk powrotu i Tytuł */}
+          <div className="flex items-center gap-4 pt-6 pb-2">
+            <Link 
+              href="/trips"
+              className="p-2 hover:bg-[#f8f9fa] rounded-full text-[#5b616e] transition-colors"
+            >
+              <ChevronLeft size={20} />
+            </Link>
+            <h2 className="text-xl font-bold text-[#0a0b0d] tracking-tight">
+              Majówka w Rzymie <span className="text-[#5b616e] font-normal text-sm ml-2"># {tripId}</span>
+            </h2>
           </div>
+
+          {/* Menu zakładkowe (Tabs) */}
+          <nav className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2">
+            {TRIP_NAV_ITEMS.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.name}
+                  href={`/trips/${tripId}${item.href}`}
+                  className={`
+                    flex items-center gap-2 px-6 py-3 text-sm font-bold whitespace-nowrap transition-all rounded-[56px]
+                    ${active 
+                      ? "bg-[#0a2351] text-white shadow-md shadow-[#0a2351]/10" 
+                      : "text-[#5b616e] hover:text-[#0a2351] hover:bg-[#f8f9fa]"
+                    }
+                  `}
+                >
+                  <item.icon size={16} />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
-      {/* PRAWDZIWE ZAKŁADKI (ROUTING) */}
-      <div className="flex border-b border-slate-700 gap-6 overflow-x-auto">
-        {tabs.map((tab) => {
-          // Sprawdzamy czy dany link jest aktywny, żeby go podświetlić
-          const isActive = pathname === tab.path;
-          return (
-            <Link
-              key={tab.id}
-              href={tab.path}
-              className={`pb-4 text-sm font-medium transition-all relative whitespace-nowrap ${
-                isActive ? "text-sky-400" : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              {tab.label}
-              {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400" />
-              )}
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* TREŚĆ ZALEŻNA OD FOLDERU (Podsumowanie, route, expenses, itd.) */}
-      <div className="py-4">
-        {children}
-      </div>
+      {/* GŁÓWNA TREŚĆ PODSTRONY */}
+      <main className="flex-1 overflow-y-auto bg-[#f8f9fa]">
+        <div className="max-w-7xl mx-auto p-6 md:p-10">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

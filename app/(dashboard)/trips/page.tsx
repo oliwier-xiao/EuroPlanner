@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search, Plus, MapPin, Users, X, Trash2 } from "lucide-react";
 
 // Rozszerzone dane testowe
 const ALL_MOCK_TRIPS = [
@@ -27,39 +28,41 @@ export default function TripsListPage() {
 
   return (
     <>
-      <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-300">
+      <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10 animate-in fade-in duration-300">
         
         {/* NAGŁÓWEK */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-3xl font-bold text-white">Moje Podróże</h1>
-            <p className="text-slate-400">Przeglądaj i zarządzaj wszystkimi swoimi wyjazdami.</p>
+            <h1 className="text-4xl font-bold text-[#0a0b0d] tracking-tighter mb-2">Moje Podróże</h1>
+            <p className="text-[#5b616e] text-lg">Przeglądaj i zarządzaj wszystkimi swoimi wyjazdami.</p>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="w-full md:w-auto px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-xl transition-all shadow-lg shadow-sky-500/20 active:scale-95 cursor-pointer"
+            className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2"
           >
-            + Nowa Podróż
+            <Plus size={20} />
+            <span>Nowa Podróż</span>
           </button>
         </div>
 
         {/* WYSZUKIWARKA I FILTRY */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 bg-[#ffffff] p-4 rounded-[24px] border border-[#5b616e]/20">
           <div className="flex-1 relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg">🔍</span>
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5b616e]" size={20} />
             <input
               type="text"
               placeholder="Szukaj podróży po nazwie..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-sky-500 transition-colors"
+              className="w-full bg-[#f8f9fa] border border-transparent rounded-full pl-12 pr-4 py-3 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
             />
           </div>
           
           <select 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sky-500 transition-colors cursor-pointer"
+            className="bg-[#f8f9fa] border border-transparent rounded-full px-6 py-3 text-[#0a0b0d] font-medium focus:outline-none focus:border-[#0a2351] transition-colors cursor-pointer appearance-none pr-10"
+            style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235b616e%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
           >
             <option value="Wszystkie statusy">Wszystkie statusy</option>
             <option value="W trakcie">W trakcie</option>
@@ -73,37 +76,43 @@ export default function TripsListPage() {
           {filteredTrips.map((trip) => (
             <div
               key={trip.id}
-              onClick={() => router.push(`/dashboard/trips/${trip.id}`)}
-              className="bg-slate-800/40 hover:bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-sky-500/50 transition-all cursor-pointer group"
+              onClick={() => router.push(`/trips/${trip.id}`)}
+              className="bg-[#ffffff] p-8 rounded-[32px] border border-[#5b616e]/20 hover:border-[#0a2351] hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full"
             >
-              <div className="flex justify-between items-start mb-4">
-                 <span className={`px-3 py-1 text-[10px] uppercase font-bold rounded-full ${
-                  trip.status === "W trakcie" ? "bg-green-500/10 text-green-400" :
-                  trip.status === "Planowana" ? "bg-blue-500/10 text-blue-400" :
-                  "bg-slate-700 text-slate-400"
+              <div className="flex justify-between items-start mb-6">
+                 <span className={`px-4 py-1.5 text-xs font-bold rounded-full ${
+                  trip.status === "W trakcie" ? "bg-green-100 text-green-800" :
+                  trip.status === "Planowana" ? "bg-blue-100 text-[#3E67BF]" :
+                  "bg-[#eef0f3] text-[#5b616e]"
                 }`}>
                   {trip.status}
                 </span>
-                <span className="text-slate-500 text-xs font-medium">{trip.dates}</span>
+                <span className="text-[#5b616e] text-sm font-medium bg-[#f8f9fa] px-3 py-1 rounded-full">{trip.dates}</span>
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">
+              <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight mb-4 group-hover:text-[#3E67BF] transition-colors">
                 {trip.name}
               </h3>
               
-              <div className="flex items-center gap-4 text-slate-400 text-sm mb-6">
-                <span className="flex items-center gap-1">👥 {trip.participants}</span>
-                <span className="flex items-center gap-1">📍 UE</span>
+              <div className="flex items-center gap-6 text-[#5b616e] text-sm mb-8 flex-1">
+                <span className="flex items-center gap-2 bg-[#f8f9fa] px-3 py-1.5 rounded-full">
+                  <Users size={16} className="text-[#0a2351]" /> 
+                  <span className="font-bold text-[#0a0b0d]">{trip.participants}</span> os.
+                </span>
+                <span className="flex items-center gap-2 bg-[#f8f9fa] px-3 py-1.5 rounded-full">
+                  <MapPin size={16} className="text-[#0a2351]" /> 
+                  <span className="font-bold text-[#0a0b0d]">UE</span>
+                </span>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] uppercase tracking-wider font-bold text-slate-500">
-                  <span>Zużycie budżetu</span>
-                  <span className={trip.budget > 90 ? "text-red-400" : ""}>{trip.budget}%</span>
+              <div className="space-y-3 mt-auto">
+                <div className="flex justify-between text-sm font-bold">
+                  <span className="text-[#5b616e]">Zużycie budżetu</span>
+                  <span className={trip.budget > 90 ? "text-red-600" : "text-[#0a0b0d]"}>{trip.budget}%</span>
                 </div>
-                <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-[#eef0f3] h-2.5 rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-700 ${trip.budget > 90 ? 'bg-red-500' : 'bg-sky-500'}`}
+                    className={`h-full transition-all duration-700 rounded-full ${trip.budget > 90 ? 'bg-red-500' : 'bg-[#0a2351]'}`}
                     style={{ width: `${trip.budget}%` }}
                   />
                 </div>
@@ -112,8 +121,8 @@ export default function TripsListPage() {
           ))}
 
           {filteredTrips.length === 0 && (
-            <div className="col-span-full text-center py-20 bg-slate-800/20 rounded-3xl border border-dashed border-slate-700">
-              <p className="text-slate-500">Nie znaleźliśmy podróży o statusie: <span className="text-white font-bold">{statusFilter}</span>.</p>
+            <div className="col-span-full text-center py-20 bg-[#f8f9fa] rounded-[40px] border border-dashed border-[#5b616e]/30">
+              <p className="text-[#5b616e] text-lg">Nie znaleźliśmy podróży o statusie: <span className="text-[#0a0b0d] font-bold">{statusFilter}</span>.</p>
             </div>
           )}
         </div>
@@ -124,7 +133,6 @@ export default function TripsListPage() {
     </>
   );
 }
-
 
 // ------------------------------------------------------------------
 // KOMPONENT MODALA
@@ -145,26 +153,29 @@ function NewTripModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] w-screen h-screen bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4">
-      <div className="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-6 border-b border-slate-700 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-white">Stwórz nową podróż</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white cursor-pointer text-xl transition-colors">✕</button>
+    <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#0a0b0d]/20 backdrop-blur-sm flex justify-center items-center p-4">
+      <div className="bg-[#ffffff] border border-[#5b616e]/20 w-full max-w-xl rounded-[40px] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+        
+        <div className="flex justify-between items-start mb-8">
+          <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight">Stwórz nową podróż</h2>
+          <button onClick={onClose} className="p-2 text-[#5b616e] hover:text-[#0a0b0d] hover:bg-[#f8f9fa] rounded-full transition-colors">
+            <X size={24} />
+          </button>
         </div>
         
-        <form className="p-6 space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1">Nazwa podróży</label>
+        <form className="space-y-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Nazwa podróży</label>
               <input 
                 type="text" 
                 placeholder="np. Eurotrip 2026"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 transition-colors"
+                className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1">Główna waluta</label>
-              <select className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 transition-colors">
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Główna waluta</label>
+              <select className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors appearance-none cursor-pointer">
                 <option value="EUR">Euro (EUR) - Domyślna</option>
                 <option value="PLN">Złoty (PLN)</option>
                 <option value="CZK">Korona czeska (CZK)</option>
@@ -172,28 +183,27 @@ function NewTripModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-slate-400">Uczestnicy</label>
+          <div className="space-y-4 bg-[#f8f9fa] p-6 rounded-[24px]">
+            <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e]">Uczestnicy</label>
             
-            <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
               {participants.map((p, index) => (
-                <div key={index} className="flex gap-2 items-center animate-in fade-in slide-in-from-left-2 duration-200">
+                <div key={index} className="flex gap-3 items-center animate-in fade-in slide-in-from-left-2 duration-200">
                   <input 
                     type="text"
                     value={p}
                     onChange={(e) => updateParticipant(index, e.target.value)}
                     placeholder={`Imię uczestnika ${index + 1}`}
-                    className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-sky-500 transition-colors"
+                    className="flex-1 bg-[#ffffff] border border-[#5b616e]/20 rounded-full px-5 py-3 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
                   />
-                  {/* ZMIANA TUTAJ: index > 0 oznacza, że ikona kosza NIE pokaże się przy pierwszej osobie */}
                   {index > 0 && (
                     <button 
                       type="button"
                       onClick={() => removeParticipant(index)}
-                      className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                      className="p-3 text-[#5b616e] hover:text-red-500 hover:bg-red-50 rounded-full transition-colors shrink-0"
                       title="Usuń uczestnika"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                      <Trash2 size={18} />
                     </button>
                   )}
                 </div>
@@ -203,24 +213,24 @@ function NewTripModal({ onClose }: { onClose: () => void }) {
             <button 
               type="button"
               onClick={addParticipant}
-              className="text-sky-400 text-sm font-medium hover:text-sky-300 transition-colors cursor-pointer mt-2 inline-block"
+              className="text-[#3E67BF] font-bold hover:text-[#0a2351] transition-colors flex items-center gap-2 mt-2"
             >
-              + Dodaj kolejną osobę
+              <Plus size={16} /> Dodaj kolejną osobę
             </button>
           </div>
 
-          <div className="pt-4 flex gap-3">
+          <div className="pt-4 flex flex-col sm:flex-row gap-4">
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+              className="w-full px-8 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a0b0d] font-bold rounded-[56px] transition-colors"
             >
               Anuluj
             </button>
             <button 
               type="button"
               onClick={onClose} 
-              className="flex-1 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-all shadow-lg shadow-sky-500/20 cursor-pointer"
+              className="w-full px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors"
             >
               Stwórz podróż
             </button>
