@@ -45,8 +45,8 @@ export default function TripsListPage() {
           </button>
         </div>
 
-        {/* WYSZUKIWARKA I FILTRY */}
-        <div className="flex flex-col sm:flex-row gap-4 bg-[#ffffff] p-4 rounded-[24px] border border-[#5b616e]/20">
+        {/* WYSZUKIWARKA I FILTRY - Zmieniono border na /40 */}
+        <div className="flex flex-col sm:flex-row gap-4 bg-[#ffffff] p-4 rounded-[24px] border border-[#5b616e]/40">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5b616e]" size={20} />
             <input
@@ -77,7 +77,8 @@ export default function TripsListPage() {
             <div
               key={trip.id}
               onClick={() => router.push(`/trips/${trip.id}`)}
-              className="bg-[#ffffff] p-8 rounded-[32px] border border-[#5b616e]/20 hover:border-[#0a2351] hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full"
+              
+              className="bg-[#ffffff] p-8 rounded-[32px] border border-[#5b616e]/40 hover:border-[#0a2351] hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full"
             >
               <div className="flex justify-between items-start mb-6">
                  <span className={`px-4 py-1.5 text-xs font-bold rounded-full ${
@@ -121,7 +122,8 @@ export default function TripsListPage() {
           ))}
 
           {filteredTrips.length === 0 && (
-            <div className="col-span-full text-center py-20 bg-[#f8f9fa] rounded-[40px] border border-dashed border-[#5b616e]/30">
+            
+            <div className="col-span-full text-center py-20 bg-[#f8f9fa] rounded-[40px] border border-dashed border-[#5b616e]/40">
               <p className="text-[#5b616e] text-lg">Nie znaleźliśmy podróży o statusie: <span className="text-[#0a0b0d] font-bold">{statusFilter}</span>.</p>
             </div>
           )}
@@ -154,7 +156,8 @@ function NewTripModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#0a0b0d]/20 backdrop-blur-sm flex justify-center items-center p-4">
-      <div className="bg-[#ffffff] border border-[#5b616e]/20 w-full max-w-xl rounded-[40px] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+      
+      <div className="bg-[#ffffff] border border-[#5b616e]/40 w-full max-w-xl rounded-[40px] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
         
         <div className="flex justify-between items-start mb-8">
           <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight">Stwórz nową podróż</h2>
@@ -167,15 +170,17 @@ function NewTripModal({ onClose }: { onClose: () => void }) {
           <div className="space-y-6">
             <div className="space-y-2">
               <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Nazwa podróży</label>
+              
               <input 
                 type="text" 
                 placeholder="np. Eurotrip 2026"
-                className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
+                className="w-full bg-[#f8f9fa] border border-[#5b616e]/40 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
               />
             </div>
             <div className="space-y-2">
               <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Główna waluta</label>
-              <select className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors appearance-none cursor-pointer">
+              
+              <select className="w-full bg-[#f8f9fa] border border-[#5b616e]/40 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors appearance-none cursor-pointer">
                 <option value="EUR">Euro (EUR) - Domyślna</option>
                 <option value="PLN">Złoty (PLN)</option>
                 <option value="CZK">Korona czeska (CZK)</option>
@@ -189,12 +194,13 @@ function NewTripModal({ onClose }: { onClose: () => void }) {
             <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
               {participants.map((p, index) => (
                 <div key={index} className="flex gap-3 items-center animate-in fade-in slide-in-from-left-2 duration-200">
+                  
                   <input 
                     type="text"
                     value={p}
                     onChange={(e) => updateParticipant(index, e.target.value)}
                     placeholder={`Imię uczestnika ${index + 1}`}
-                    className="flex-1 bg-[#ffffff] border border-[#5b616e]/20 rounded-full px-5 py-3 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
+                    className="flex-1 bg-[#ffffff] border border-[#5b616e]/40 rounded-full px-5 py-3 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
                   />
                   {index > 0 && (
                     <button 
