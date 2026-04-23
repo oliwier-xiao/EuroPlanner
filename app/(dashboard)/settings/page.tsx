@@ -16,11 +16,17 @@ import {
   AlertCircle
 } from "lucide-react";
 
+type CurrentUser = {
+  displayName: string;
+  email: string | null;
+};
+
 export default function SettingsPage() {
-  const [name, setName] = useState("Michał");
-  const [email, setEmail] = useState("michal@example.com");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [notifications, setNotifications] = useState(true);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
  
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -29,6 +35,36 @@ export default function SettingsPage() {
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCurrentUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me", {
+          credentials: "include",
+        });
+        const payload = await response.json();
+
+        if (!cancelled && response.ok && payload?.user) {
+          setCurrentUser({
+            displayName: payload.user.displayName,
+            email: payload.user.email,
+          });
+          setName(payload.user.displayName);
+          setEmail(payload.user.email ?? "");
+        }
+      } catch (error) {
+        console.error("Nie udało się pobrać danych konta:", error);
+      }
+    };
+
+    loadCurrentUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,7 +124,7 @@ export default function SettingsPage() {
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-[#3E67BF] text-white flex items-center justify-center text-3xl font-bold shadow-inner">
-                  {name.charAt(0)}
+                  {(currentUser?.displayName || name || "U").charAt(0)}
                 </div>
               )}
               <div className="absolute inset-0 bg-[#0a0b0d]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

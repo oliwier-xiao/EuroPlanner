@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { 
@@ -11,8 +11,12 @@ import {
   Bell,
   User,
   Menu,
-  X
+  X,
 } from "lucide-react";
+
+type CurrentUserState = {
+  displayName: string;
+};
 
 const NAV_ITEMS = [
   { name: "Pulpit", href: "/dashboard", icon: LayoutDashboard },
@@ -27,8 +31,38 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  
+  const [currentUser, setCurrentUser] = useState<CurrentUserState>({ displayName: "Użytkownik" });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCurrentUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me", {
+          credentials: "include",
+        });
+        const payload = await response.json();
+
+        if (!cancelled && response.ok && payload?.user?.displayName) {
+          setCurrentUser({ displayName: payload.user.displayName });
+          return;
+        }
+      } catch (error) {
+        console.error("Nie udało się pobrać danych zalogowanego użytkownika:", error);
+      }
+
+      if (!cancelled) {
+        setCurrentUser({ displayName: "Użytkownik" });
+      }
+    };
+
+    loadCurrentUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
 const handleLogout = async () => {
     console.log("Wylogowywanie użytkownika...");
@@ -46,20 +80,18 @@ const handleLogout = async () => {
   };
 
   const closeSidebar = () => setIsSidebarOpen(false);
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const toggleSidebar = () => setIsSidebarOpen((current) => !current);
 
   return (
     <div className="flex h-screen bg-[#3A67BF] text-white overflow-hidden font-sans relative">
-      
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 transition-opacity"
           onClick={closeSidebar}
         />
       )}
 
-      
-      <aside 
+      <aside
         className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-[#eef0f3]/40 bg-[#3E67BF] transform transition-transform duration-300 ease-in-out shadow-2xl ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -73,8 +105,8 @@ const handleLogout = async () => {
               EuroPlanner
             </span>
           </Link>
-          
-          <button 
+
+          <button
             onClick={closeSidebar}
             className="text-white/70 hover:text-white transition-colors cursor-pointer"
           >
@@ -103,7 +135,6 @@ const handleLogout = async () => {
           })}
         </nav>
 
-        
         <div className="p-4 border-t border-[#eef0f3]/40">
           <button 
             onClick={handleLogout}
@@ -116,13 +147,10 @@ const handleLogout = async () => {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full">
-        
-        
         <header className="h-20 border-b border-[#eef0f3]/40 bg-[#3E67BF] flex items-center justify-between px-6 md:px-8 z-30">
-          
           <div className="flex items-center gap-4">
-            <button 
-              onClick={toggleSidebar} 
+            <button
+              onClick={toggleSidebar}
               className="p-2 -ml-2 text-white/70 hover:text-white transition-colors cursor-pointer rounded-full hover:bg-white/10"
             >
               <Menu size={28} />
@@ -134,16 +162,16 @@ const handleLogout = async () => {
               <Bell size={22} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-400 rounded-full border-2 border-[#3E67BF]"></span>
             </button>
-            
-            
+
             <div className="h-8 w-px bg-[#eef0f3]/40 mx-1 md:mx-2"></div>
-            
-            
+
             <button className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-white/10 transition-all cursor-pointer group">
               <div className="w-9 h-9 rounded-full bg-white/10 border border-[#eef0f3]/40 flex items-center justify-center text-white">
                 <User size={20} />
               </div>
-              <span className="hidden sm:block text-sm font-bold text-white pr-2">Michał</span>
+              <span className="hidden sm:block text-sm font-bold text-white pr-2">
+                {currentUser.displayName}
+              </span>
             </button>
           </div>
         </header>

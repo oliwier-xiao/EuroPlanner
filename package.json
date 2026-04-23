@@ -8,6 +8,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
   },
