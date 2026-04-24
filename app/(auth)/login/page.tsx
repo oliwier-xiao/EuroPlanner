@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
 import { Eye, EyeOff, ArrowRight, User, Lock, Loader2 } from "lucide-react";
+import LogoAuth from "../../../components/LogoAuth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -112,8 +113,7 @@ export default function LoginPage() {
       <div id="particles-js" className="absolute inset-0 z-0" aria-hidden="true" />
       <div className="relative z-10 min-h-screen w-full flex flex-col items-center p-4 animate-in fade-in duration-700 pointer-events-none">
         <div className="mb-5 mt-2 flex flex-col items-center gap-2 pointer-events-auto">
-          <div className="w-12 h-12 bg-[#3E67BF] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-[#3E67BF]/20">E</div>
-          <h1 className="text-xl font-bold text-[#0a2351] tracking-tighter uppercase">EuroPlanner</h1>
+          <LogoAuth />
         </div>
         <div className="w-full max-w-[400px] bg-white/80 backdrop-blur-md rounded-[40px] border border-[#5b616e]/10 p-7 md:p-9 shadow-xl shadow-blue-900/5 pointer-events-auto">
           <div className="mb-5 text-center">
@@ -123,10 +123,10 @@ export default function LoginPage() {
           {error && <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-600 text-xs font-bold rounded-2xl text-center">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Imię / Login</label>
+              <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4"> Nazwa użytkownika</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5b616e]" size={16} />
-                <input type="text" placeholder="admin" value={name} onChange={(e) => setName(e.target.value)} required disabled={loading} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-12 pr-4 py-[11.6px] text-sm outline-none transition-all" />
+                <input type="text" placeholder="jan_kowal" value={name} onChange={(e) => setName(e.target.value)} required disabled={loading} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-12 pr-4 py-[11.6px] text-sm outline-none transition-all" />
               </div>
             </div>
             <div className="space-y-1.5">

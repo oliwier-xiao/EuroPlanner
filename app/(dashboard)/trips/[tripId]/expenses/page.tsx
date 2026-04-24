@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { 
   Receipt, 
   Plus, 
@@ -26,6 +27,9 @@ export default function ExpensesPage() {
   const [activeTab, setActiveTab] = useState("Wszystkie");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const router = useRouter();
+  const { tripId } = useParams();
+
   const tabs = ["Wszystkie", "Moje wydatki", "Do zwrotu"];
 
   return (
@@ -38,9 +42,12 @@ export default function ExpensesPage() {
           <p className="text-[#5b616e]">Zarządzaj kosztami i skanuj paragony.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <button className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10">
-            <Camera size={20} className="group-hover:scale-110 transition-transform" />
-            Skanuj paragon
+          <button
+              onClick={() => router.push(`/trips/${tripId}/scan`)}
+              className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10"
+              >
+              <Camera size={20} className="group-hover:scale-110 transition-transform" />
+              Skanuj paragon
           </button>
           <button className="px-6 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2">
             <Plus size={20} />

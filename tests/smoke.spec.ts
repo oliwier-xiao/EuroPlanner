@@ -66,6 +66,9 @@ test('Niezalogowany user trafia na strone logowania', async ({ page }) => {
   await expect(page).toHaveURL(/\/login/);
   // Zmiana: W nowym designie tytuł formularza to h2 "Witaj ponownie"
   await expect(page.locator('h2')).toContainText('Witaj ponownie');
+  
+  // NOWE: Sprawdzamy, czy nasze nowe logo Auth ładuje się poprawnie
+  await expect(page.getByAltText('EuroPlanner Logo')).toBeVisible();
 });
 
 test('Sesja po logowaniu wpuszcza na dashboard i pokazuje dane konta', async ({ page }) => {
@@ -84,7 +87,7 @@ test('Bledne dane logowania pokazuja blad', async ({ page }) => {
   await ensureLoggedOut(page);
   await page.goto('/login');
 
-  // Zmiana: używamy nowych placeholderów "admin" i "••••••••"
+  // Zostawiamy stary placeholder "admin" zgodnie z życzeniem
   await fillStable(page.getByPlaceholder('admin'), 'zly');
   await fillStable(page.getByPlaceholder('••••••••'), 'zly');
   
@@ -117,6 +120,9 @@ test('Strona rejestracji sie laduje', async ({ page }) => {
   // Zmiana: W nowym designie tytuł formularza to h2 "Załóż konto"
   await expect(page.locator('h2')).toContainText('Załóż konto');
   await expect(page.locator('a[href="/login"]')).toBeVisible();
+  
+  // NOWE: Sprawdzamy czy logo jest też na stronie rejestracji
+  await expect(page.getByAltText('EuroPlanner Logo')).toBeVisible();
 });
 
 test('Zalogowany user widzi liste podrózy', async ({ page }) => {

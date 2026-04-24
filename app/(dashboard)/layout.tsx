@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Logo from "../../components/Logo";
 import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
@@ -64,17 +65,15 @@ export default function DashboardLayout({
     };
   }, []);
 
-const handleLogout = async () => {
+  const handleLogout = async () => {
     console.log("Wylogowywanie użytkownika...");
     
-    // Odpytujemy endpoint, który usuwa autoryzację/ciasteczka
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch (e) {
       console.error("Błąd podczas wylogowywania:", e);
     }
 
-    // Odświeżamy stan routera i wracamy na logowanie
     router.refresh();
     router.push("/login");
   };
@@ -96,15 +95,12 @@ const handleLogout = async () => {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        {/* NAGŁÓWEK SIDEBARU Z LOGO */}
         <div className="p-8 flex justify-between items-center">
-          <Link href="/dashboard" className="flex items-center gap-3 group" onClick={closeSidebar}>
-            <div className="w-8 h-8 bg-[#0a2351] rounded-lg flex items-center justify-center">
-              <span className="text-[#ffffff] font-bold text-xl">E</span>
-            </div>
-            <span className="text-2xl font-bold tracking-tighter leading-none text-[#ffffff]">
-              EuroPlanner
-            </span>
-          </Link>
+          {/* Logo jest teraz statycznym elementem bez Linku i bez klasy group */}
+          <div className="flex items-center">
+            <Logo />
+          </div>
 
           <button
             onClick={closeSidebar}

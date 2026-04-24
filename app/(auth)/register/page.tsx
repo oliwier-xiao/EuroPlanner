@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
 import { User, Mail, Lock, ArrowRight, Type, Eye, EyeOff } from "lucide-react";
+import LogoAuth from "../../../components/LogoAuth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -92,12 +93,9 @@ export default function RegisterPage() {
 
       <div id="particles-js" className="absolute inset-0 z-0" aria-hidden="true" />
 
-      <div className="relative z-10 min-h-screen w-full flex flex-col items-center p-4 animate-in fade-in duration-700 pointer-events-none">
-        <div className="mb-5 mt-2 flex flex-col items-center gap-2 pointer-events-auto">
-          <div className="w-12 h-12 bg-[#3E67BF] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-[#3E67BF]/20">
-            E
-          </div>
-          <h1 className="text-xl font-bold text-[#0a2351] tracking-tighter uppercase">EuroPlanner</h1>
+      <div className="relative z-8 min-h-screen w-full flex flex-col items-center p-4 animate-in fade-in duration-700 pointer-events-none">
+        <div className="mb-2 mt-2 flex flex-col items-center gap-2 pointer-events-auto">
+          <LogoAuth />
         </div>
 
         <div className="w-full max-w-[500px] bg-white/80 backdrop-blur-md rounded-[40px] border border-[#5b616e]/10 p-7 md:p-9 shadow-xl shadow-blue-900/5 pointer-events-auto">
