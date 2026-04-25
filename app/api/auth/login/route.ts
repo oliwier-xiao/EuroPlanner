@@ -23,14 +23,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('LOGIN_REQ', { name, password });
     const { data: user, error } = await supabase
       .from("Users")
       .select("user_id, name, password")
       .eq("name", name)
       .eq("password", password)
       .maybeSingle();
-    console.log('LOGIN_RES', { user, error });
 
     if (error) {
       console.error("Błąd podczas logowania:", error);
