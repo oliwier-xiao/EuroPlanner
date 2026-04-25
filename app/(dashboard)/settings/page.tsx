@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { 
   User, 
@@ -15,6 +16,8 @@ import {
   ChevronRight,
   AlertCircle
 } from "lucide-react";
+import { AvatarPicker } from "@/components/ui/AvatarPicker";
+import { useAvatar } from "@/hooks/useAvatar";
 
 type CurrentUser = {
   displayName: string;
@@ -28,13 +31,8 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
- 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
+  const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
+  const { avatar, setAvatarId } = useAvatar();
 
   useEffect(() => {
     let cancelled = false;
@@ -65,14 +63,6 @@ export default function SettingsPage() {
       cancelled = true;
     };
   }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setAvatarUrl(imageUrl);
-    }
-  };
 
   
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -112,33 +102,25 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div 
-              className="relative group cursor-pointer shrink-0" 
-              onClick={handleAvatarClick}
+            <button
+              type="button"
+              onClick={() => setIsAvatarPickerOpen(true)}
+              aria-label={`Zmień awatar (aktualnie: ${avatar.name})`}
+              className="relative group shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3E67BF] focus-visible:ring-offset-2"
             >
-              {avatarUrl ? (
-                <img 
-                  src={avatarUrl} 
-                  alt="Avatar" 
-                  className="w-24 h-24 rounded-full object-cover shadow-inner"
+              <div className="w-24 h-24 rounded-full bg-white border border-[#eef0f3] overflow-hidden shadow-inner">
+                <Image
+                  src={avatar.src}
+                  alt=""
+                  width={192}
+                  height={192}
+                  className="w-full h-full object-cover"
                 />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-[#3E67BF] text-white flex items-center justify-center text-3xl font-bold shadow-inner">
-                  {(currentUser?.displayName || name || "U").charAt(0)}
-                </div>
-              )}
+              </div>
               <div className="absolute inset-0 bg-[#0a0b0d]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Camera className="text-white" size={24} />
               </div>
-            </div>
-
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              accept="image/*" 
-              className="hidden" 
-            />
+            </button>
 
             <div className="flex-1 w-full space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -309,6 +291,13 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      <AvatarPicker
+        open={isAvatarPickerOpen}
+        selectedId={avatar.id}
+        onSelect={setAvatarId}
+        onClose={() => setIsAvatarPickerOpen(false)}
+      />
     </div>
   );
 }

@@ -35,10 +35,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: w realnej aplikacji zahaszuj hasło (np. bcrypt)
     const { error: insertError } = await supabase
       .from("Users")
-      .insert({ name, surname, password });
+      .insert({ name, surname, password, avatar_id: "yellow-smile" });
 
     if (insertError) {
       console.error("Błąd podczas tworzenia użytkownika:", insertError);

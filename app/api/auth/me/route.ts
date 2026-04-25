@@ -28,6 +28,7 @@ export async function GET() {
     user: {
       ...user,
       displayName: formatUserDisplayName(user),
+      avatar_id: user.avatar_id,
     },
   });
 }
