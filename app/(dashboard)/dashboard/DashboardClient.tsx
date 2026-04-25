@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { 
   Plus, TrendingUp, Users, CreditCard, ArrowRight, MapPin, Clock, X, Mail, Shield
 } from "lucide-react";
+import { useAvatar } from "@/hooks/useAvatar";
 
 type User = {
   user_id: string;
@@ -41,15 +43,6 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function getInitials(displayName: string) {
-  return displayName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
 export default function DashboardClient({
   user,
   trips,
@@ -61,17 +54,24 @@ export default function DashboardClient({
 }) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const displayName = stats?.displayName || [user?.name, user?.surname].filter(Boolean).join(" ") || "Podróżniku";
+  const { avatar } = useAvatar();
+  const resolvedName = stats?.displayName || [user?.name, user?.surname].filter(Boolean).join(" ");
+  const greeting = resolvedName ? `Witaj, ${resolvedName}!` : "Witaj!";
+  const subtitle = user?.email
+    ? `Zalogowano jako ${user.email}`
+    : user
+      ? "Twój pulpit podróży"
+      : "Wczytywanie danych konta...";
 
   return (
     <div className="p-6 md:p-10 space-y-10 bg-[#ffffff] min-h-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold text-[#0a0b0d] leading-none tracking-tighter mb-3">
-            Witaj, {displayName}!
+            {greeting}
           </h1>
           <p className="text-[#5b616e] text-lg font-medium">
-            {user?.email ? `Zalogowano jako ${user.email}` : "Nie udało się pobrać danych konta."}
+            {subtitle}
           </p>
         </div>
         <button 
@@ -144,32 +144,44 @@ export default function DashboardClient({
           </div>
         </div>
 
-        <div className="space-y-8">
-          <section className="bg-[#f8f9fa] p-8 rounded-[40px] border border-[#5b616e]/10">
-            <h2 className="text-[22px] font-bold text-[#0a0b0d] tracking-tight mb-8">Dane konta</h2>
-            <div className="space-y-5">
-              <div className="flex items-center gap-4 p-4 rounded-[24px] bg-white border border-[#5b616e]/10">
-                <div className="w-12 h-12 rounded-2xl bg-[#0a2351] text-white flex items-center justify-center font-bold text-sm">
-                  {getInitials(displayName) || "U"}
+        {user && (
+          <div className="space-y-8">
+            <section className="bg-[#f8f9fa] p-8 rounded-[40px] border border-[#5b616e]/10">
+              <h2 className="text-[22px] font-bold text-[#0a0b0d] tracking-tight mb-8">Dane konta</h2>
+              <div className="space-y-5">
+                <div className="flex items-center gap-4 p-4 rounded-[24px] bg-white border border-[#5b616e]/10">
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[#eef0f3] shrink-0">
+                    <Image
+                      src={avatar.src}
+                      alt=""
+                      width={96}
+                      height={96}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#0a0b0d] truncate">{resolvedName || "Konto"}</p>
+                    {user.email && (
+                      <p className="text-sm text-[#5b616e] truncate">{user.email}</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-[#0a0b0d]">{displayName}</p>
-                  <p className="text-sm text-[#5b616e]">Konto użytkownika</p>
+
+                {user.email && (
+                  <div className="flex items-center gap-3 text-sm text-[#5b616e] font-medium">
+                    <Mail size={16} className="text-[#0a2351]" />
+                    <span className="truncate">{user.email}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 text-sm text-[#5b616e] font-medium">
+                  <Shield size={16} className="text-[#0a2351]" />
+                  <span className="truncate font-mono text-xs">{user.user_id}</span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3 text-sm text-[#5b616e] font-medium">
-                <Mail size={16} className="text-[#0a2351]" />
-                <span>{user?.email || "Brak adresu e-mail"}</span>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm text-[#5b616e] font-medium">
-                <Shield size={16} className="text-[#0a2351]" />
-                <span>{user?.user_id ? `ID konta: ${user.user_id}` : "Brak identyfikatora konta"}</span>
-              </div>
-            </div>
-          </section>
-        </div>
+            </section>
+          </div>
+        )}
       </div>
 
       {isModalOpen && (

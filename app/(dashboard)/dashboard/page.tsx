@@ -2,7 +2,10 @@ import { cookies } from "next/headers";
 import { supabase } from "@/lib/supabaseClient";
 import DashboardClient from "./DashboardClient";
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 import { getCurrentUser, formatUserDisplayName } from "@/lib/auth/getCurrentUser";
 
@@ -97,7 +100,7 @@ export default async function DashboardPage() {
   const [{ data: tripsData }, { data: participantRows }, { data: expenseRows }] = await Promise.all([
     supabase
       .from("Trips")
-      .select("trip_id, title, start_date, end_date, budget_limit")
+      .select("trip_id, slug, title, start_date, end_date, budget_limit")
       .in("trip_id", tripIds),
     supabase
       .from("Trip_participants")
@@ -126,7 +129,7 @@ export default async function DashboardPage() {
       const participants = participantCountByTrip.get(trip.trip_id) ?? 0;
 
       return {
-        id: trip.trip_id,
+        id: (trip as { slug?: string }).slug ?? trip.trip_id,
         name: trip.title,
         status: getTripStatus(trip.start_date ?? null, trip.end_date ?? null),
         budget: total > 0 ? Math.min(100, Math.round((spent / total) * 100)) : 0,
