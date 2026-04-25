@@ -1,3 +1,7 @@
+// Moduł czysto serwerowy — używa SERVICE_ROLE_KEY do Supabase.
+// `import "server-only"` rzuci błąd kompilacji, jeśli zostanie
+// zaimportowany z Client Component (plik z "use client").
+import "server-only";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 
 export type CurrentUser = {
