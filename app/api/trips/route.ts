@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
+import { configErrorMessage } from "@/lib/env";
+import { buildTripSlug } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
 type TripRow = {
   trip_id: string;
+  slug: string;
   title: string;
   description: string | null;
   start_date: string | null;
@@ -68,8 +71,8 @@ export async function GET() {
   let supabaseServer;
   try {
     supabaseServer = getSupabaseServer();
-  } catch {
-    return NextResponse.json({ success: false, message: "Brak konfiguracji serwera" }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ success: false, message: configErrorMessage(err) }, { status: 500 });
   }
 
   const user = await getAuthenticatedUser();
@@ -96,7 +99,7 @@ export async function GET() {
   const [{ data: tripsData, error: tripsError }, { data: participantRows }, { data: expenseRows }] = await Promise.all([
     supabaseServer
       .from("Trips")
-      .select("trip_id, title, description, start_date, end_date, budget_limit")
+      .select("trip_id, slug, title, description, start_date, end_date, budget_limit")
       .in("trip_id", tripIds),
     supabaseServer
       .from("Trip_participants")
@@ -128,7 +131,7 @@ export async function GET() {
       const spent = expenseTotalByTrip.get(trip.trip_id) ?? 0;
 
       return {
-        id: trip.trip_id,
+        id: trip.slug,
         name: trip.title,
         description: trip.description,
         status: formatStatus(trip.start_date ?? null, trip.end_date ?? null),
@@ -148,8 +151,8 @@ export async function POST(request: NextRequest) {
   let supabaseServer;
   try {
     supabaseServer = getSupabaseServer();
-  } catch {
-    return NextResponse.json({ success: false, message: "Brak konfiguracji serwera" }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ success: false, message: configErrorMessage(err) }, { status: 500 });
   }
 
   const user = await getAuthenticatedUser();
@@ -196,11 +199,13 @@ export async function POST(request: NextRequest) {
   }
 
   const tripId = crypto.randomUUID();
+  const slug = buildTripSlug(title);
 
   const { error: createError } = await supabaseServer
     .from("Trips")
     .insert({
       trip_id: tripId,
+      slug,
       title: title.trim(),
       description: description?.trim() || null,
       start_date: start_date || null,
@@ -248,7 +253,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     success: true,
     trip: {
-    id: tripId,
+      id: slug,
       name: title.trim(),
       description: description?.trim() || null,
       status: formatStatus(start_date || null, end_date || null),

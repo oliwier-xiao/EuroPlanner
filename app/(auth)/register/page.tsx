@@ -5,14 +5,75 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
 import { User, Mail, Lock, ArrowRight, Type, Eye, EyeOff } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", username: "", email: "", password: "", confirmPassword: ""
   });
+
+  const updateField = (field: keyof typeof formData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [field]: event.target.value }));
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage(null);
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Hasła nie są takie same");
+      return;
+    }
+    if (formData.password.length < 4) {
+      setErrorMessage("Hasło musi mieć co najmniej 4 znaki");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: formData.firstName,
+          surname: formData.lastName,
+          email: formData.email || undefined,
+          password: formData.password,
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setErrorMessage(payload?.message || "Nie udało się utworzyć konta");
+        return;
+      }
+
+      const loginResponse = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: formData.firstName, password: formData.password }),
+      });
+
+      if (loginResponse.ok) {
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        router.push("/login");
+      }
+    } catch {
+      setErrorMessage("Nie udało się połączyć z serwerem");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   function initParticles() {
     const windowAny = window as any;
@@ -93,11 +154,8 @@ export default function RegisterPage() {
       <div id="particles-js" className="absolute inset-0 z-0" aria-hidden="true" />
 
       <div className="relative z-10 min-h-screen w-full flex flex-col items-center p-4 animate-in fade-in duration-700 pointer-events-none">
-        <div className="mb-5 mt-2 flex flex-col items-center gap-2 pointer-events-auto">
-          <div className="w-12 h-12 bg-[#3E67BF] rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-[#3E67BF]/20">
-            E
-          </div>
-          <h1 className="text-xl font-bold text-[#0a2351] tracking-tighter uppercase">EuroPlanner</h1>
+        <div className="mb-5 mt-2 flex flex-col items-center pointer-events-auto">
+          <Logo variant="dark" width={200} priority />
         </div>
 
         <div className="w-full max-w-[500px] bg-white/80 backdrop-blur-md rounded-[40px] border border-[#5b616e]/10 p-7 md:p-9 shadow-xl shadow-blue-900/5 pointer-events-auto">
@@ -106,18 +164,18 @@ export default function RegisterPage() {
             <p className="text-[#5b616e] text-sm font-medium">Dołącz do nas i planuj podróże.</p>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); router.push("/dashboard"); }} className="space-y-3.5">
+          <form onSubmit={handleRegister} className="space-y-3.5">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Imię</label>
                 <div className="relative">
                   <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5b616e]" size={15} />
-                  <input type="text" placeholder="Jan" required className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-11 pr-4 py-[11.6px] text-sm outline-none transition-all" />
+                  <input type="text" placeholder="Jan" required value={formData.firstName} onChange={updateField("firstName")} disabled={isSubmitting} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-11 pr-4 py-[11.6px] text-sm outline-none transition-all disabled:opacity-60" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Nazwisko</label>
-                <input type="text" placeholder="Kowalski" required className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full px-6 py-[11.6px] text-sm outline-none transition-all" />
+                <input type="text" placeholder="Kowalski" required value={formData.lastName} onChange={updateField("lastName")} disabled={isSubmitting} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full px-6 py-[11.6px] text-sm outline-none transition-all disabled:opacity-60" />
               </div>
             </div>
 
@@ -125,7 +183,7 @@ export default function RegisterPage() {
               <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Nazwa użytkownika</label>
               <div className="relative">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#5b616e]" size={16} />
-                <input type="text" placeholder="jan_kowal" required className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-13 pr-4 py-[11.6px] text-sm outline-none transition-all" />
+                <input type="text" placeholder="jan_kowal" value={formData.username} onChange={updateField("username")} disabled={isSubmitting} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-13 pr-4 py-[11.6px] text-sm outline-none transition-all disabled:opacity-60" />
               </div>
             </div>
 
@@ -133,7 +191,7 @@ export default function RegisterPage() {
               <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Email</label>
               <div className="relative">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-[#5b616e]" size={16} />
-                <input type="email" placeholder="jan@przyklad.pl" required className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-13 pr-4 py-[11.6px] text-sm outline-none transition-all" />
+                <input type="email" placeholder="jan@przyklad.pl" value={formData.email} onChange={updateField("email")} disabled={isSubmitting} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-13 pr-4 py-[11.6px] text-sm outline-none transition-all disabled:opacity-60" />
               </div>
             </div>
 
@@ -142,7 +200,7 @@ export default function RegisterPage() {
                 <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Hasło</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5b616e]" size={15} />
-                  <input type={showPassword ? "text" : "password"} placeholder="••••" required className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-10 pr-10 py-[11.6px] text-sm outline-none transition-all" />
+                  <input type={showPassword ? "text" : "password"} placeholder="••••" required value={formData.password} onChange={updateField("password")} disabled={isSubmitting} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-10 pr-10 py-[11.6px] text-sm outline-none transition-all disabled:opacity-60" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351]">
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -151,7 +209,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">Powtórz</label>
                 <div className="relative">
-                  <input type={showConfirmPassword ? "text" : "password"} placeholder="••••" required className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-5 pr-10 py-[11.6px] text-sm outline-none transition-all" />
+                  <input type={showConfirmPassword ? "text" : "password"} placeholder="••••" required value={formData.confirmPassword} onChange={updateField("confirmPassword")} disabled={isSubmitting} className="w-full bg-[#f8f9fa] border border-transparent focus:bg-white focus:border-[#0a2351] rounded-full pl-5 pr-10 py-[11.6px] text-sm outline-none transition-all disabled:opacity-60" />
                   <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351]">
                     {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -159,8 +217,14 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button type="submit" className="w-full bg-[#0a2351] hover:bg-[#3E67BF] text-white font-bold py-4 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mt-2 text-sm">
-              Stwórz konto <ArrowRight size={18} />
+            {errorMessage && (
+              <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-2xl px-4 py-2.5">
+                {errorMessage}
+              </div>
+            )}
+
+            <button type="submit" disabled={isSubmitting} className="w-full bg-[#0a2351] hover:bg-[#3E67BF] text-white font-bold py-4 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mt-2 text-sm disabled:opacity-70 disabled:cursor-not-allowed">
+              {isSubmitting ? "Tworzenie konta..." : (<>Stwórz konto <ArrowRight size={18} /></>)}
             </button>
           </form>
 

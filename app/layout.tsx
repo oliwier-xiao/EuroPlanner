@@ -8,6 +8,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "EuroPlanner - Zaplanuj swoją podróż",
   description: "Najlepszy planer podróży po Europie",
+  icons: {
+    icon: [{ url: "/icons/favicon.png", type: "image/png", sizes: "any" }],
+    shortcut: "/icons/favicon.png",
+    apple: "/icons/favicon.png",
+  },
 };
 
 export default function RootLayout({

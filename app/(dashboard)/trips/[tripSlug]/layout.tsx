@@ -28,11 +28,11 @@ export default function TripLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { tripId } = useParams();
+  const params = useParams();
+  const tripSlug = typeof params.tripSlug === "string" ? params.tripSlug : "";
 
-  // Funkcja pomocnicza do sprawdzania aktywnego linku
   const isActive = (href: string) => {
-    const fullPath = `/trips/${tripId}${href}`;
+    const fullPath = `/trips/${tripSlug}${href}`;
     return pathname === fullPath;
   };
 
@@ -51,7 +51,7 @@ export default function TripLayout({
               <ChevronLeft size={20} />
             </Link>
             <h2 className="text-xl font-bold text-[#0a0b0d] tracking-tight">
-              Majówka w Rzymie <span className="text-[#5b616e] font-normal text-sm ml-2"># {tripId}</span>
+              Majówka w Rzymie
             </h2>
           </div>
 
@@ -62,7 +62,7 @@ export default function TripLayout({
               return (
                 <Link
                   key={item.name}
-                  href={`/trips/${tripId}${item.href}`}
+                  href={`/trips/${tripSlug}${item.href}`}
                   className={`
                     flex items-center gap-2 px-6 py-3 text-sm font-bold whitespace-nowrap transition-all rounded-[56px]
                     ${active 
