@@ -132,8 +132,10 @@ EuroPlanner/
 ### Wymagania wstępne
 
 - Node.js 18+
-- Konto [Supabase](https://supabase.com/) (bezpłatny plan wystarczy)
+- Dostęp do firmowego **Tailscale / VPN** — cały zespół łączy się do **wspólnej, self‑hostowanej instancji Supabase** na serwerze projektowym (adres typu `100.x.x.x:54323`). Nie zakładamy własnych instancji Supabase.
 - Klucz API [Google Cloud Vision](https://cloud.google.com/vision)
+
+> ℹ️ **Baza danych jest jedna dla całego zespołu.** Schemat zarządzany centralnie przez SQL Editor w Supabase Studio. **Nie musisz uruchamiać żadnych migracji lokalnie po `git pull`** — kolega, który dodaje nową kolumnę, robi to raz w SQL Editorze i zmiana jest natychmiast widoczna dla wszystkich.
 
 ### Kroki
 
@@ -157,16 +159,112 @@ Utwórz plik `.env.local` i dodaj:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=twoj_url_supabase
 NEXT_PUBLIC_SUPABASE_ANON_KEY=twoj_klucz_anon
+SUPABASE_SERVICE_ROLE_KEY=twoj_klucz_service_role
 GOOGLE_VISION_API_KEY=twoj_klucz_google_vision
 ```
 
-**4. Uruchom serwer deweloperski:**
+> ⚠️ `SUPABASE_SERVICE_ROLE_KEY` jest **tajny** — używany TYLKO server-side w `lib/supabaseServer.ts`. Nigdy nie dodawaj prefiksu `NEXT_PUBLIC_`, bo wyciekłby do klienta.
+>
+> 🔑 Klucze i URL bazy bierzesz od osoby z dostępem administracyjnym do Supabase Studio — **nie zakładasz własnej instancji**, łączysz się do tej samej, co reszta zespołu (przez Tailscale/VPN).
+
+**4. Połącz się z firmowym Tailscale / VPN:**
+
+Bez tego adres bazy (`100.x.x.x:54323`) jest nieosiągalny — dostaniesz błąd typu `fetch failed` / `ECONNREFUSED`.
+
+**5. Uruchom serwer deweloperski:**
 
 ```bash
 npm run dev
 ```
 
 Aplikacja będzie dostępna pod adresem [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🏗️ Architektura: Server vs Client Components
+
+Projekt używa **Next.js 15 App Router** z React Server Components. To jest najczęstsze źródło błędów w zespole, więc ⚠️ przeczytaj uważnie ⚠️.
+
+### Reguły kciuka
+
+| Co chcesz zrobić? | Server Component | Client Component |
+|---|---|---|
+| Pobrać dane z bazy / Supabase | ✅ TAK | ❌ NIE |
+| Odczytać ciasteczko / nagłówek HTTP | ✅ TAK (`await cookies()`) | ❌ NIE |
+| Użyć `useState` / `useEffect` | ❌ NIE | ✅ TAK |
+| Obsłużyć `onClick` / `onChange` | ❌ NIE | ✅ TAK |
+| Użyć biblioteki przeglądarkowej (`window`, `localStorage`) | ❌ NIE | ✅ TAK |
+| `import "server-only"` | ✅ TAK (zaleca się) | ❌ NIE (rzuci błąd) |
+| Funkcja może być `async` | ✅ TAK | ❌ **NIE — to powoduje opisywany błąd!** |
+| Dyrektywa `"use client"` | ❌ NIE | ✅ TAK (pierwsza linia pliku) |
+
+### Wzorzec: layout pobierający dane usera
+
+Tak to wygląda w naszym projekcie (i tak masz robić w nowych modułach):
+
+**1. Server Component robi `await` i pobiera dane** — `app/(dashboard)/layout.tsx`:
+
+```tsx
+import "server-only";
+import { cookies } from "next/headers";
+import DashboardChrome from "./DashboardChrome";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";
+
+export default async function DashboardLayout({ children }) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("auth-token")?.value;
+  const user = userId ? await getCurrentUser(userId) : null;
+
+  return (
+    <DashboardChrome initialUser={user}>
+      {children}
+    </DashboardChrome>
+  );
+}
+```
+
+**2. Client Component dostaje gotowe dane jako propsy** — `app/(dashboard)/DashboardChrome.tsx`:
+
+```tsx
+"use client";
+import { useState } from "react";
+
+export default function DashboardChrome({ children, initialUser }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // ... cała interaktywność tutaj
+  return <div>{children}</div>;
+}
+```
+
+### ❌ Czego NIE robić
+
+```tsx
+// ❌ ŹLE: async + "use client" → błąd Next.js 15
+"use client";
+export default async function MyLayout({ children }) {
+  const data = await fetch(...);  // 💥 "is an async Client Component"
+  return <div>{children}</div>;
+}
+```
+
+```tsx
+// ❌ ŹLE: import server-only z client component
+"use client";
+import { getCurrentUser } from "@/lib/auth/getCurrentUser";  // 💥 build error
+```
+
+### Konwencja w naszym repo
+
+Pliki czysto serwerowe MAJĄ na górze `import "server-only"`:
+- `app/(dashboard)/layout.tsx`
+- `lib/supabaseServer.ts`
+- `lib/auth/getCurrentUser.ts`
+
+Dzięki temu jeśli ktoś przypadkiem zaimportuje je z client componentu (lub doda do nich `"use client"`), dostanie czytelny błąd przy buildzie zamiast hydration error w runtime.
+
+**Gdy tworzysz nowy plik:**
+- Plik woła `cookies()`, `await supabase...`, używa `SUPABASE_SERVICE_ROLE_KEY`? → dodaj `import "server-only";` na górze
+- Plik używa `useState`, `onClick`, `window`? → dodaj `"use client";` na górze (i NIE rób go `async`)
 
 ---
 
@@ -219,6 +317,68 @@ Repozytorium zawiera workflow GitHub Actions [`e2e-tests.yml`](.github/workflows
 - buduje obraz Dockera i uruchamia aplikację w kontenerze,
 - instaluje przeglądarki Playwright,
 - odpala `npx playwright test` przy każdym commicie / pull requeście na gałąź `main`.
+
+---
+
+## 🛠️ Troubleshooting
+
+### Błąd: `<DashboardLayout> is an async Client Component`
+
+Pełny komunikat:
+> An unknown Component is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding 'use client' to a module that was originally written for the server.
+
+**Przyczyna:** stary cache `.next` po pull‑u z `main` (kod został zrefaktorowany na server‑side fetch usera w commicie [`0816b8e`](../../commit/0816b8e)).
+
+**Rozwiązanie — wyczyść cache i odpal od nowa:**
+
+```bash
+git pull origin main
+npm install
+npm run dev:fresh
+```
+
+Albo „twardy reset" (jeśli to nie pomogło):
+
+```bash
+npm run reset      # usuwa .next, node_modules, tsbuildinfo + reinstaluje
+npm run dev
+```
+
+**❌ NIE rób tego, co podpowiada chat (czasem):** usunięcie `async` z `DashboardLayout` zepsuje `await cookies()` i `await getCurrentUser()` — przestanie się pobierać dane usera w SSR.
+
+**Architektura (dlaczego tak jest):**
+
+| Plik | Typ | `async`? | `"use client"`? |
+|---|---|---|---|
+| `app/(dashboard)/layout.tsx` | Server Component | ✅ TAK | ❌ NIE |
+| `app/(dashboard)/DashboardChrome.tsx` | Client Component | ❌ NIE | ✅ TAK |
+
+Server Component pobiera ciasteczko + dane usera z bazy, a Client Component obsługuje całą interaktywność (sidebar, menu, awatar). Dane lecą jako propsy.
+
+Kluczowe pliki serwerowe mają `import "server-only"` u góry — jeśli ktoś przypadkiem doda do nich `"use client"`, dostanie czytelny błąd kompilacji zamiast hydration error.
+
+### Błąd: `fetch failed` / `ECONNREFUSED` przy starcie
+
+**Przyczyna:** nie jesteś w firmowym Tailscale/VPN. Adres bazy (`100.x.x.x:54323`) jest osiągalny tylko z VPN.
+
+**Rozwiązanie:** połącz się z Tailscale i odpal `npm run dev` ponownie.
+
+### Błąd Supabase: `column "email" does not exist` / `column "avatar_id" does not exist` / `column "slug" does not exist`
+
+**Tego błędu nie powinieneś dostać** — zespół korzysta ze **wspólnej self‑hostowanej instancji Supabase** (przez VPN), więc schemat jest zawsze taki sam dla wszystkich. Jeśli go widzisz, to znaczy że:
+
+1. **Łączysz się do złej bazy** (np. masz w `.env.local` URL od starej / własnej instancji). Sprawdź `NEXT_PUBLIC_SUPABASE_URL` — powinien wskazywać na firmowy serwer (`100.x.x.x:54323`).
+2. **Ktoś z zespołu właśnie dodał kolumnę** i jeszcze tego nie odpalił na wspólnej bazie. Napisz do osoby z dostępem admin do Supabase Studio (patrz [`docs/DATABASE.md`](./docs/DATABASE.md) → sekcja **Migracje**), żeby uruchomił odpowiedni snippet SQL **raz, na wspólnej bazie**.
+
+> ℹ️ Pliki `docs/DATABASE.md` i `docs/ERD.dbml` są **historycznym rejestrem** zmian schematu — pomagają zrozumieć co i kiedy się zmieniło, ale **nie są listą rzeczy do uruchomienia lokalnie** (bo nikt nie ma własnej bazy).
+
+### Inne komendy debugowania
+
+```bash
+npm run clean         # tylko .next + tsbuildinfo
+npm run type-check    # sprawdź typy bez buildowania
+npm ls next react     # sprawdź wersje (powinny się zgadzać u wszystkich)
+```
 
 
 ## 📄 Licencja

@@ -1,3 +1,19 @@
+// ⚠️ UWAGA: Ten plik MUSI być Server Component (BEZ "use client").
+// Pobiera ciasteczko `auth-token` i woła Supabase po stronie serwera —
+// dzięki temu w pierwszym renderze widać poprawnego użytkownika i awatar
+// (brak "flash" stanu niezalogowanego).
+//
+// ❌ NIE dodawaj tutaj "use client" — Next.js 15 nie pozwala na
+//    `async` w Client Components, dostaniesz błąd:
+//    "<DashboardLayout> is an async Client Component".
+//
+// ✅ Cała interaktywność (sidebar, menu, przyciski) siedzi w
+//    `./DashboardChrome.tsx` — tam jest "use client".
+//
+// `import "server-only"` poniżej powoduje, że jeśli ktoś przypadkiem
+// zaimportuje ten plik z Client Component, dostanie czytelny błąd
+// przy buildzie zamiast hydration error.
+import "server-only";
 import { cookies } from "next/headers";
 import DashboardChrome from "./DashboardChrome";
 import { getCurrentUser, formatUserDisplayName } from "@/lib/auth/getCurrentUser";

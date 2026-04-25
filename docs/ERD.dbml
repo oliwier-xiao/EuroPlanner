@@ -1,6 +1,9 @@
 // Europlanner - Schemat bazy danych
 // Docs: https://dbml.dbdiagram.io/docs
 // Podgląd/edycja: https://dbdiagram.io/d
+//
+// Konwencja: nazwy tabel w PascalCase (Users, Trips, Trip_participants, ...).
+// Cały kod aplikacji używa tej formy (np. supabase.from("Users")).
 
 Project europlanner {
   database_type: 'PostgreSQL'
@@ -11,38 +14,39 @@ Project europlanner {
   '''
 }
 
-Table users {
+Table Users {
   user_id uuid [pk]
   name text
   surname text
-  email varchar [not null, unique]
-  password text [not null, note: 'Obsługiwane przez Supabase Auth — kolumna poglądowa']
-  admin_access boolean [not null, default: false]
-  created_at timestamp [not null, default: `now()`]
+  password text [not null]
+  Admin_access boolean [default: false, note: 'Uwaga: pisownia z dużej A']
+  avatar_id text [default: 'yellow-smile', note: 'FK logiczny → lib/avatars.ts']
+  email text [unique, note: 'Opcjonalne przy rejestracji']
 }
 
-Table trips {
+Table Trips {
   trip_id uuid [pk]
   title varchar [not null]
   description varchar
   start_date date
   end_date date
-  budget_limit decimal
-  created_at timestamp [not null, default: `now()`]
+  budget_limit numeric
+  created_at timestamp [default: `now()`]
+  slug text [unique, not null, note: 'Używane w URL-ach, generowane przez lib/slug.ts']
 }
 
-Table trip_participants {
+Table Trip_participants {
   trip_id uuid [not null]
   user_id uuid [not null]
   role varchar [not null, note: "'owner' | 'member'"]
-  joined_at timestamp [not null, default: `now()`]
+  joined_at timestamp [default: `now()`]
 
   indexes {
     (trip_id, user_id) [pk]
   }
 }
 
-Table destinations {
+Table Destinations {
   destination_id bigint [pk, increment]
   trip_id uuid [not null]
   name text [not null]
@@ -53,21 +57,21 @@ Table destinations {
   visit_order smallint
 }
 
-Table activities {
+Table Activities {
   activity_id bigint [pk, increment]
   destination_id bigint [not null]
   title varchar
   start_time timestamp
   cost real
-  is_completed boolean [not null, default: false]
+  is_completed boolean [default: false]
 }
 
-Table expense_categories {
+Table Expense_categories {
   category_id uuid [pk]
   name varchar
 }
 
-Table expenses {
+Table Expenses {
   expense_id uuid [pk]
   trip_id uuid [not null]
   category_id uuid [not null]
@@ -77,12 +81,12 @@ Table expenses {
 }
 
 // Relacje
-Ref: trip_participants.trip_id > trips.trip_id
-Ref: trip_participants.user_id > users.user_id
+Ref: Trip_participants.trip_id > Trips.trip_id
+Ref: Trip_participants.user_id > Users.user_id
 
-Ref: destinations.trip_id > trips.trip_id
+Ref: Destinations.trip_id > Trips.trip_id
 
-Ref: activities.destination_id > destinations.destination_id
+Ref: Activities.destination_id > Destinations.destination_id
 
-Ref: expenses.trip_id > trips.trip_id
-Ref: expenses.category_id > expense_categories.category_id
+Ref: Expenses.trip_id > Trips.trip_id
+Ref: Expenses.category_id > Expense_categories.category_id
