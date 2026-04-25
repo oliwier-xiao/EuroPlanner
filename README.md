@@ -132,8 +132,10 @@ EuroPlanner/
 ### Wymagania wstępne
 
 - Node.js 18+
-- Konto [Supabase](https://supabase.com/) (bezpłatny plan wystarczy)
+- Dostęp do firmowego **Tailscale / VPN** — cały zespół łączy się do **wspólnej, self‑hostowanej instancji Supabase** na serwerze projektowym (adres typu `100.x.x.x:54323`). Nie zakładamy własnych instancji Supabase.
 - Klucz API [Google Cloud Vision](https://cloud.google.com/vision)
+
+> ℹ️ **Baza danych jest jedna dla całego zespołu.** Schemat zarządzany centralnie przez SQL Editor w Supabase Studio. **Nie musisz uruchamiać żadnych migracji lokalnie po `git pull`** — kolega, który dodaje nową kolumnę, robi to raz w SQL Editorze i zmiana jest natychmiast widoczna dla wszystkich.
 
 ### Kroki
 
@@ -162,10 +164,12 @@ GOOGLE_VISION_API_KEY=twoj_klucz_google_vision
 ```
 
 > ⚠️ `SUPABASE_SERVICE_ROLE_KEY` jest **tajny** — używany TYLKO server-side w `lib/supabaseServer.ts`. Nigdy nie dodawaj prefiksu `NEXT_PUBLIC_`, bo wyciekłby do klienta.
+>
+> 🔑 Klucze i URL bazy bierzesz od osoby z dostępem administracyjnym do Supabase Studio — **nie zakładasz własnej instancji**, łączysz się do tej samej, co reszta zespołu (przez Tailscale/VPN).
 
-**4. Zaktualizuj schemat bazy danych:**
+**4. Połącz się z firmowym Tailscale / VPN:**
 
-Po każdym `git pull` z `main` sprawdź [`docs/DATABASE.md`](./docs/DATABASE.md) — sekcja **🛠️ Migracje** zawiera snippety SQL do uruchomienia w Supabase Studio (SQL Editor). Bez tego dostaniesz błędy typu „column `email` does not exist".
+Bez tego adres bazy (`100.x.x.x:54323`) jest nieosiągalny — dostaniesz błąd typu `fetch failed` / `ECONNREFUSED`.
 
 **5. Uruchom serwer deweloperski:**
 
@@ -352,6 +356,21 @@ npm run dev
 Server Component pobiera ciasteczko + dane usera z bazy, a Client Component obsługuje całą interaktywność (sidebar, menu, awatar). Dane lecą jako propsy.
 
 Kluczowe pliki serwerowe mają `import "server-only"` u góry — jeśli ktoś przypadkiem doda do nich `"use client"`, dostanie czytelny błąd kompilacji zamiast hydration error.
+
+### Błąd: `fetch failed` / `ECONNREFUSED` przy starcie
+
+**Przyczyna:** nie jesteś w firmowym Tailscale/VPN. Adres bazy (`100.x.x.x:54323`) jest osiągalny tylko z VPN.
+
+**Rozwiązanie:** połącz się z Tailscale i odpal `npm run dev` ponownie.
+
+### Błąd Supabase: `column "email" does not exist` / `column "avatar_id" does not exist` / `column "slug" does not exist`
+
+**Tego błędu nie powinieneś dostać** — zespół korzysta ze **wspólnej self‑hostowanej instancji Supabase** (przez VPN), więc schemat jest zawsze taki sam dla wszystkich. Jeśli go widzisz, to znaczy że:
+
+1. **Łączysz się do złej bazy** (np. masz w `.env.local` URL od starej / własnej instancji). Sprawdź `NEXT_PUBLIC_SUPABASE_URL` — powinien wskazywać na firmowy serwer (`100.x.x.x:54323`).
+2. **Ktoś z zespołu właśnie dodał kolumnę** i jeszcze tego nie odpalił na wspólnej bazie. Napisz do osoby z dostępem admin do Supabase Studio (patrz [`docs/DATABASE.md`](./docs/DATABASE.md) → sekcja **Migracje**), żeby uruchomił odpowiedni snippet SQL **raz, na wspólnej bazie**.
+
+> ℹ️ Pliki `docs/DATABASE.md` i `docs/ERD.dbml` są **historycznym rejestrem** zmian schematu — pomagają zrozumieć co i kiedy się zmieniło, ale **nie są listą rzeczy do uruchomienia lokalnie** (bo nikt nie ma własnej bazy).
 
 ### Inne komendy debugowania
 

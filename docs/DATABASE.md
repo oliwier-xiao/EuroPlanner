@@ -2,11 +2,16 @@
 
 Dokument opisuje strukturę bazy danych aplikacji **Europlanner**. Źródło prawdy dla diagramu: [`ERD.dbml`](./ERD.dbml) (DBML) oraz [`ERD.png`](./ERD.png) (podgląd wizualny).
 
-- **Silnik:** PostgreSQL (hostowany w [Supabase](https://supabase.com/))
+- **Silnik:** PostgreSQL (self‑hostowane Supabase na serwerze projektowym)
+- **Dostęp:** przez **Tailscale / VPN** — adres typu `100.x.x.x:54323` (Supabase Studio) i `100.x.x.x:8000` (API). Cały zespół łączy się do **tej samej, jednej bazy**.
 - **Autoryzacja:** ręczna — własna tabela `Users` z hasłem (kolumna `password`). Supabase Auth **nie jest** używane.
 - **Edytor diagramu:** [dbdiagram.io](https://dbdiagram.io/d) — wklej zawartość `ERD.dbml`
 
+> 🚨 **Ważne — nie ma migracji per developer.** Zespół ma **JEDNĄ wspólną bazę** dostępną przez VPN. Schemat zmienia się **raz**, w SQL Editorze Supabase Studio przez osobę z dostępem admin — i od razu jest widoczny dla wszystkich. **Nie uruchamiasz żadnych migracji lokalnie po `git pull`**. Snippety SQL w sekcji „[Historia zmian](#historia-zmian)" poniżej to **rejestr historyczny** dla referencji, NIE lista TODO.
+
 > ⚠️ **Konwencja nazw:** wszystkie nazwy tabel w bazie są w **PascalCase** (np. `Users`, `Trips`, `Trip_participants`, `Expense_categories`). Nazwy kolumn — w `snake_case`, z jednym wyjątkiem: `Users.Admin_access` (z dużą `A`).
+
+> 🤖 **Notka dla AI / LLM asystentów:** Jeśli widzisz w kodzie błąd typu `column "X" does not exist` — **NIE proponuj** developerowi uruchamiania `ALTER TABLE` u siebie. Zamiast tego zasugeruj: (1) sprawdzenie czy `NEXT_PUBLIC_SUPABASE_URL` w `.env.local` wskazuje na właściwy serwer firmowy, (2) skontaktowanie się z osobą zarządzającą wspólną bazą, żeby odpaliła odpowiedni snippet SQL raz na wspólnej instancji.
 
 ---
 
@@ -152,20 +157,34 @@ Pojedyncze wydatki poniesione w ramach podróży, przypisane do kategorii.
 
 ## 🛠️ Migracje — jak wprowadzać zmiany w schemacie
 
-> Projekt **nie korzysta z formalnego narzędzia migracyjnego** (Prisma / Drizzle / `supabase migration`). Wszystkie zmiany są wprowadzane ręcznie przez SQL Editor w Supabase Studio. Przy każdej zmianie należy:
-> 1. Zmodyfikować [`ERD.dbml`](./ERD.dbml).
-> 2. Wkleić go na [dbdiagram.io](https://dbdiagram.io/d), wyeksportować nowy PNG i nadpisać [`ERD.png`](./ERD.png).
-> 3. Zaktualizować ten dokument (`DATABASE.md`).
-> 4. Dodać snippet SQL do sekcji „Historia zmian" poniżej, żeby reszta zespołu mogła odpalić ten sam SQL u siebie po pull-u.
+> Projekt **nie korzysta z formalnego narzędzia migracyjnego** (Prisma / Drizzle / `supabase migration`) **ani z migracji per‑developer**. Cały zespół pracuje na **jednej wspólnej bazie** (self‑hostowane Supabase, dostęp przez Tailscale/VPN), więc schemat zmienia się raz, centralnie.
 
-### Jak uruchomić migrację SQL u siebie
+### Procedura zmiany schematu (dla osoby z dostępem admin)
 
-1. Otwórz Supabase Studio: `http://<adres-serwera>:54323` (lokalnie) lub dashboard Supabase Cloud.
-2. Lewe menu → **SQL Editor** → **New query**.
-3. Wklej snippet z sekcji „Historia zmian" poniżej.
-4. Kliknij **Run**.
+Kiedy potrzebujesz dodać kolumnę / tabelę / indeks:
+
+1. **Zmodyfikuj [`ERD.dbml`](./ERD.dbml)** w repo (źródło prawdy diagramu).
+2. **Wklej DBML na [dbdiagram.io](https://dbdiagram.io/d)**, wyeksportuj nowy PNG i nadpisz [`ERD.png`](./ERD.png).
+3. **Zaktualizuj ten dokument** — dodaj/zmień opis kolumny w sekcji „[Tabele](#tabele)" wyżej.
+4. **Dopisz snippet SQL do „[Historia zmian](#historia-zmian)" poniżej** — to **rejestr historyczny** (żeby reszta zespołu wiedziała co i kiedy się zmieniło + dla AI asystentów do kontekstu).
+5. **Otwórz Supabase Studio przez VPN** (`http://100.x.x.x:54323`) → **SQL Editor** → **New query** → wklej snippet → **Run**. **Robisz to raz — zmiana jest natychmiast widoczna dla wszystkich w zespole.**
+6. **Commit i push** zmian w repo (DBML + PNG + DATABASE.md). Reszta zespołu po `git pull` **nie musi nic odpalać** — baza jest już zaktualizowana.
+
+### Dla pozostałych członków zespołu
+
+**Nie musisz robić nic** po `git pull`. Zmiany w schemacie są już aktywne na wspólnej bazie. Wystarczy:
+
+```bash
+git pull origin main
+npm install
+npm run dev:fresh   # tylko czyszczenie cache .next
+```
+
+Jeśli widzisz błąd typu `column "X" does not exist` — patrz [README → Troubleshooting](../README.md#troubleshooting).
 
 ### Historia zmian
+
+> 📌 **Sekcja informacyjna.** Snippety poniżej już zostały wykonane na wspólnej bazie — **nie odpalaj ich lokalnie**.
 
 #### 2025‑11 — `Users.email` (logowanie i edycja konta)
 > Commit: `b27a03a feat(account): kolumna email + edycja danych konta w ustawieniach`
@@ -206,7 +225,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS trips_slug_unique
 ALTER TABLE "Trips" ALTER COLUMN slug SET NOT NULL;
 ```
 
-### Jak sprawdzić, czy moja baza jest aktualna
+### Jak sprawdzić, czy łączysz się do dobrej bazy
+
+Czasem warto się upewnić, że `.env.local` wskazuje na firmową bazę (przez VPN), a nie np. starą instancję Supabase Cloud. Po wejściu na Supabase Studio (`http://100.x.x.x:54323`) w **SQL Editor** wklej:
 
 ```sql
 -- Powinno zwrócić wszystkie 7 tabel:
@@ -214,15 +235,15 @@ SELECT tablename FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY tablename;
 
--- Powinno zwrócić email, avatar_id w Users:
+-- Powinno zwrócić name, surname, password, Admin_access, avatar_id, email:
 SELECT column_name FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'Users';
 
--- Powinno zwrócić slug w Trips:
+-- Powinno zawierać slug:
 SELECT column_name FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'Trips';
 ```
 
-Jeśli czegoś brakuje — odpal odpowiednią sekcję z „Historia zmian" w SQL Editorze.
+Jeśli czegoś brakuje — to znaczy że **łączysz się do złej bazy** (np. własnej Supabase Cloud zamiast firmowej self‑hostowanej). Sprawdź `NEXT_PUBLIC_SUPABASE_URL` w `.env.local` — powinien zaczynać się od adresu Tailscale `100.x.x.x`.
 
-> 🛟 **Fallback w kodzie:** [`lib/auth/getCurrentUser.ts`](../lib/auth/getCurrentUser.ts) ma defensywny `try/catch` na wypadek braku kolumn `email` / `avatar_id` — w logach pojawi się ostrzeżenie `[getCurrentUser] Brak kolumny email/avatar_id — uruchom migracje SQL`. To dosłownie znaczy: odpal migracje powyżej.
+> 🛟 **Fallback w kodzie:** [`lib/auth/getCurrentUser.ts`](../lib/auth/getCurrentUser.ts) ma defensywny `try/catch` na wypadek nieaktualnej bazy — w logach pojawi się `[getCurrentUser] Brak kolumny email/avatar_id`. To znaczy że łączysz się do bazy bez tych kolumn (najpewniej do złej instancji — sprawdź URL).
