@@ -34,6 +34,12 @@ export default function SettingsPage() {
   const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
   const { avatar, setAvatarId } = useAvatar();
 
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileFeedback, setProfileFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -63,6 +69,57 @@ export default function SettingsPage() {
       cancelled = true;
     };
   }, []);
+
+  const handleSaveProfile = async () => {
+    setProfileFeedback(null);
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setProfileFeedback({ type: "error", message: "Imię nie może być puste" });
+      return;
+    }
+
+    const trimmedEmail = email.trim();
+    const [firstWord, ...rest] = trimmedName.split(/\s+/);
+    const surnameValue = rest.length > 0 ? rest.join(" ") : null;
+
+    setIsSavingProfile(true);
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: firstWord,
+          surname: surnameValue,
+          email: trimmedEmail.length > 0 ? trimmedEmail : null,
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setProfileFeedback({
+          type: "error",
+          message: payload?.message || "Nie udało się zapisać zmian",
+        });
+        return;
+      }
+
+      setProfileFeedback({ type: "success", message: "Zapisano zmiany" });
+      const updated = payload?.user;
+      if (updated) {
+        const fullName = [updated.name, updated.surname].filter(Boolean).join(" ").trim();
+        setCurrentUser({
+          displayName: fullName || updated.name || "Użytkownik",
+          email: updated.email ?? null,
+        });
+      }
+    } catch {
+      setProfileFeedback({ type: "error", message: "Nie udało się połączyć z serwerem" });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
 
   
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -145,10 +202,27 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
-              <div className="flex justify-end">
-                <button className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
+                {profileFeedback && (
+                  <span
+                    role="alert"
+                    className={`text-sm font-medium px-4 py-2 rounded-full ${
+                      profileFeedback.type === "success"
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                    }`}
+                  >
+                    {profileFeedback.message}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  disabled={isSavingProfile}
+                  className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
                   <Save size={18} />
-                  Zapisz zmiany
+                  {isSavingProfile ? "Zapisywanie..." : "Zapisz zmiany"}
                 </button>
               </div>
             </div>
