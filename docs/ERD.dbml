@@ -32,7 +32,7 @@ Table Trips {
   end_date date
   budget_limit numeric
   created_at timestamp [default: `now()`]
-  slug text [unique, not null, note: 'Używane w URL-ach, generowane przez lib/slug.ts']
+  slug text [unique, not null, note: 'Unikalny, NOT NULL. Przyjazny identyfikator używany w URL-ach (np. /trips/wakacje-w-pradze-a3f9). Generowany automatycznie z tytułu przez lib/slug.ts (ASCII-only + losowy suffix). Indeks UNIQUE: trips_slug_unique.']
 }
 
 Table Trip_participants {
