@@ -5,40 +5,46 @@
   "detailLevel": "All",
   "tablePositions": [
     {
-      "name": "users",
+      "name": "Users",
       "schemaName": "public",
-      "x": 12,
-      "y": 12
+      "x": 0,
+      "y": 50
     },
     {
-      "name": "trips",
+      "name": "Trips",
       "schemaName": "public",
-      "x": 12,
-      "y": 314
+      "x": 279.1171875,
+      "y": 50
     },
     {
-      "name": "trip_participants",
+      "name": "Trip_participants",
       "schemaName": "public",
-      "x": 524.5244140625,
-      "y": 12
+      "x": 540.62744140625,
+      "y": 50
     },
     {
-      "name": "destinations",
+      "name": "Destinations",
       "schemaName": "public",
-      "x": 524.5244140625,
-      "y": 218
+      "x": 792.90185546875,
+      "y": 50
     },
     {
-      "name": "expense_categories",
+      "name": "Activities",
       "schemaName": "public",
-      "x": 12,
-      "y": 648
+      "x": 0,
+      "y": 356
     },
     {
-      "name": "expenses",
+      "name": "Expense_categories",
       "schemaName": "public",
-      "x": 524.5244140625,
-      "y": 552
+      "x": 279.1171875,
+      "y": 388
+    },
+    {
+      "name": "Expenses",
+      "schemaName": "public",
+      "x": 540.62744140625,
+      "y": 260
     }
   ],
   "tableGroupCollapseStates": [],
@@ -48,13 +54,13 @@
       "firstFieldNames": [
         "trip_id"
       ],
-      "firstTableName": "trip_participants",
+      "firstTableName": "Trip_participants",
       "firstSchemaName": "public",
       "firstRelation": "*",
       "secondFieldNames": [
         "trip_id"
       ],
-      "secondTableName": "trips",
+      "secondTableName": "Trips",
       "secondSchemaName": "public",
       "secondRelation": "1",
       "checkPoints": []
@@ -63,13 +69,13 @@
       "firstFieldNames": [
         "user_id"
       ],
-      "firstTableName": "trip_participants",
+      "firstTableName": "Trip_participants",
       "firstSchemaName": "public",
       "firstRelation": "*",
       "secondFieldNames": [
         "user_id"
       ],
-      "secondTableName": "users",
+      "secondTableName": "Users",
       "secondSchemaName": "public",
       "secondRelation": "1",
       "checkPoints": []
@@ -78,28 +84,52 @@
       "firstFieldNames": [
         "trip_id"
       ],
-      "firstTableName": "destinations",
+      "firstTableName": "Destinations",
       "firstSchemaName": "public",
       "firstRelation": "*",
       "secondFieldNames": [
         "trip_id"
       ],
-      "secondTableName": "trips",
+      "secondTableName": "Trips",
       "secondSchemaName": "public",
       "secondRelation": "1",
       "checkPoints": []
     },
     {
       "firstFieldNames": [
+        "destination_id"
+      ],
+      "firstTableName": "Activities",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "destination_id"
+      ],
+      "secondTableName": "Destinations",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": [
+        {
+          "x": 836.2587890625,
+          "y": 92
+        },
+        {
+          "x": 836.2587890625,
+          "y": 266
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
         "trip_id"
       ],
-      "firstTableName": "expenses",
+      "firstTableName": "Expenses",
       "firstSchemaName": "public",
       "firstRelation": "*",
       "secondFieldNames": [
         "trip_id"
       ],
-      "secondTableName": "trips",
+      "secondTableName": "Trips",
       "secondSchemaName": "public",
       "secondRelation": "1",
       "checkPoints": []
@@ -108,13 +138,13 @@
       "firstFieldNames": [
         "category_id"
       ],
-      "firstTableName": "expenses",
+      "firstTableName": "Expenses",
       "firstSchemaName": "public",
       "firstRelation": "*",
       "secondFieldNames": [
         "category_id"
       ],
-      "secondTableName": "expense_categories",
+      "secondTableName": "Expense_categories",
       "secondSchemaName": "public",
       "secondRelation": "1",
       "checkPoints": []

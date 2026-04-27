@@ -52,7 +52,7 @@ Centralny obiekt aplikacji — każda wyprawa ma swój budżet i ramy czasowe.
 | `end_date` | `date` | Data zakończenia |
 | `budget_limit` | `numeric` | Limit budżetu w EUR |
 | `created_at` | `timestamp` | DEFAULT `now()` |
-| `slug` | `text` | UNIQUE — używany w URL-ach (np. `/trips/wakacje-w-pradze-a3f9`). Generowany przez [`lib/slug.ts`](../lib/slug.ts). |
+| `slug` | `text` | UNIQUE, NOT NULL — przyjazny identyfikator URL (np. `/trips/wakacje-w-pradze-a3f9`). Generowany automatycznie z `title` przez `lib/slug.ts` (ASCII-only + losowy suffix). Indeks UNIQUE: `trips_slug_unique`. |
 
 ---
 
