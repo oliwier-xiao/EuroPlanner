@@ -3,8 +3,121 @@
   "darkMode": true,
   "gridEnabling": false,
   "detailLevel": "All",
-  "tablePositions": [],
+  "tablePositions": [
+    {
+      "name": "users",
+      "schemaName": "public",
+      "x": 12,
+      "y": 12
+    },
+    {
+      "name": "trips",
+      "schemaName": "public",
+      "x": 12,
+      "y": 314
+    },
+    {
+      "name": "trip_participants",
+      "schemaName": "public",
+      "x": 524.5244140625,
+      "y": 12
+    },
+    {
+      "name": "destinations",
+      "schemaName": "public",
+      "x": 524.5244140625,
+      "y": 218
+    },
+    {
+      "name": "expense_categories",
+      "schemaName": "public",
+      "x": 12,
+      "y": 648
+    },
+    {
+      "name": "expenses",
+      "schemaName": "public",
+      "x": 524.5244140625,
+      "y": 552
+    }
+  ],
   "tableGroupCollapseStates": [],
   "stickyNoteLayouts": [],
-  "referencePaths": []
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "trip_id"
+      ],
+      "firstTableName": "trip_participants",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "trip_id"
+      ],
+      "secondTableName": "trips",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "user_id"
+      ],
+      "firstTableName": "trip_participants",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "users",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "trip_id"
+      ],
+      "firstTableName": "destinations",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "trip_id"
+      ],
+      "secondTableName": "trips",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "trip_id"
+      ],
+      "firstTableName": "expenses",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "trip_id"
+      ],
+      "secondTableName": "trips",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "category_id"
+      ],
+      "firstTableName": "expenses",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "category_id"
+      ],
+      "secondTableName": "expense_categories",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    }
+  ]
 }

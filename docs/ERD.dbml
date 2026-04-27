@@ -7,35 +7,36 @@ Project europlanner {
   Note: '''
     # Europlanner Database
     Schemat bazy danych aplikacji Europlanner (Supabase / PostgreSQL).
-    Obsługuje planowanie podróży grupowych, listę aktywności oraz wspólne rozliczenia.
+    Obsługuje planowanie podróży grupowych oraz wspólne rozliczenia.
   '''
 }
 
 Table users {
   user_id uuid [pk]
-  name text
+  name text [not null]
   surname text
-  email varchar [not null, unique]
+  email text
   password text [not null, note: 'Obsługiwane przez Supabase Auth — kolumna poglądowa']
   admin_access boolean [not null, default: false]
-  created_at timestamp [not null, default: `now()`]
+  avatar_id text
 }
 
 Table trips {
   trip_id uuid [pk]
+  slug text [not null]
   title varchar [not null]
   description varchar
   start_date date
   end_date date
-  budget_limit decimal
-  created_at timestamp [not null, default: `now()`]
+  budget_limit numeric
+  created_at timestamp [not null]
 }
 
 Table trip_participants {
   trip_id uuid [not null]
   user_id uuid [not null]
   role varchar [not null, note: "'owner' | 'member'"]
-  joined_at timestamp [not null, default: `now()`]
+  joined_at timestamp [not null]
 
   indexes {
     (trip_id, user_id) [pk]
@@ -43,7 +44,7 @@ Table trip_participants {
 }
 
 Table destinations {
-  destination_id bigint [pk, increment]
+  destination_id bigint [pk]
   trip_id uuid [not null]
   name text [not null]
   lat real
@@ -53,24 +54,15 @@ Table destinations {
   visit_order smallint
 }
 
-Table activities {
-  activity_id bigint [pk, increment]
-  destination_id bigint [not null]
-  title varchar
-  start_time timestamp
-  cost real
-  is_completed boolean [not null, default: false]
-}
-
 Table expense_categories {
   category_id uuid [pk]
-  name varchar
+  name varchar [not null]
 }
 
 Table expenses {
   expense_id uuid [pk]
   trip_id uuid [not null]
-  category_id uuid [not null]
+  category_id uuid
   amount real [not null]
   date date [not null]
   note text
@@ -81,8 +73,6 @@ Ref: trip_participants.trip_id > trips.trip_id
 Ref: trip_participants.user_id > users.user_id
 
 Ref: destinations.trip_id > trips.trip_id
-
-Ref: activities.destination_id > destinations.destination_id
 
 Ref: expenses.trip_id > trips.trip_id
 Ref: expenses.category_id > expense_categories.category_id

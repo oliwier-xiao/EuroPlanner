@@ -22,12 +22,12 @@ Dane kont zarejestrowanych użytkowników.
 | Kolumna | Typ | Uwagi |
 |---|---|---|
 | `user_id` | `uuid` | **PK** |
-| `name` | `text` | Imię |
+| `name` | `text` | NOT NULL, imię |
 | `surname` | `text` | Nazwisko |
-| `email` | `varchar` | NOT NULL, UNIQUE |
+| `email` | `text` | Opcjonalny e-mail |
 | `password` | `text` | NOT NULL — docelowo obsługiwane przez Supabase Auth |
-| `admin_access` | `boolean` | NOT NULL, `DEFAULT false` |
-| `created_at` | `timestamp` | NOT NULL, `DEFAULT now()` |
+| `admin_access` | `boolean` | NOT NULL |
+| `avatar_id` | `text` | Opcjonalne ID avatara |
 
 ---
 
@@ -37,12 +37,13 @@ Centralny obiekt aplikacji — każda wyprawa ma swój budżet i ramy czasowe.
 | Kolumna | Typ | Uwagi |
 |---|---|---|
 | `trip_id` | `uuid` | **PK** |
+| `slug` | `text` | NOT NULL — unikalny identyfikator URL (technicznie) |
 | `title` | `varchar` | NOT NULL — nazwa podróży |
 | `description` | `varchar` | Opcjonalny opis |
 | `start_date` | `date` | Data rozpoczęcia |
 | `end_date` | `date` | Data zakończenia |
-| `budget_limit` | `decimal` | Limit budżetu w EUR |
-| `created_at` | `timestamp` | NOT NULL, `DEFAULT now()` |
+| `budget_limit` | `numeric` | Limit budżetu w EUR |
+| `created_at` | `timestamp` | NOT NULL |
 
 ---
 
@@ -54,7 +55,7 @@ Centralny obiekt aplikacji — każda wyprawa ma swój budżet i ramy czasowe.
 | `trip_id` | `uuid` | **PK**, FK → `trips.trip_id` |
 | `user_id` | `uuid` | **PK**, FK → `users.user_id` |
 | `role` | `varchar` | NOT NULL — dozwolone wartości: `owner`, `member` |
-| `joined_at` | `timestamp` | NOT NULL, `DEFAULT now()` |
+| `joined_at` | `timestamp` | NOT NULL |
 
 > **Uwaga:** klucz główny to para `(trip_id, user_id)` — jeden użytkownik może być tylko raz uczestnikiem danej podróży.
 
@@ -65,7 +66,7 @@ Przystanki/miasta, które składają się na trasę podróży.
 
 | Kolumna | Typ | Uwagi |
 |---|---|---|
-| `destination_id` | `bigint` | **PK**, auto-increment |
+| `destination_id` | `bigint` | **PK** |
 | `trip_id` | `uuid` | NOT NULL, FK → `trips.trip_id` |
 | `name` | `text` | NOT NULL — nazwa miasta/miejsca |
 | `lat` | `real` | Szerokość geograficzna |
@@ -76,27 +77,13 @@ Przystanki/miasta, które składają się na trasę podróży.
 
 ---
 
-### `activities` — aktywności w danym miejscu
-Konkretne atrakcje/punkty programu przypisane do `destination`.
-
-| Kolumna | Typ | Uwagi |
-|---|---|---|
-| `activity_id` | `bigint` | **PK**, auto-increment |
-| `destination_id` | `bigint` | NOT NULL, FK → `destinations.destination_id` |
-| `title` | `varchar` | Nazwa aktywności |
-| `start_time` | `timestamp` | Godzina rozpoczęcia |
-| `cost` | `real` | Orientacyjny koszt |
-| `is_completed` | `boolean` | NOT NULL, `DEFAULT false` — czy aktywność została zrealizowana |
-
----
-
 ### `expense_categories` — słownik kategorii wydatków
 Lista predefiniowanych kategorii (np. transport, jedzenie, noclegi).
 
 | Kolumna | Typ | Uwagi |
 |---|---|---|
 | `category_id` | `uuid` | **PK** |
-| `name` | `varchar` | Nazwa kategorii |
+| `name` | `varchar` | NOT NULL, nazwa kategorii |
 
 **Proponowane wartości seed:**
 - `Transport`
@@ -115,7 +102,7 @@ Pojedyncze wydatki poniesione w ramach podróży, przypisane do kategorii.
 |---|---|---|
 | `expense_id` | `uuid` | **PK** |
 | `trip_id` | `uuid` | NOT NULL, FK → `trips.trip_id` |
-| `category_id` | `uuid` | NOT NULL, FK → `expense_categories.category_id` |
+| `category_id` | `uuid` | FK → `expense_categories.category_id` (opcjonalne) |
 | `amount` | `real` | NOT NULL — kwota |
 | `date` | `date` | NOT NULL — data wydatku |
 | `note` | `text` | Opcjonalna notatka / opis paragonu |
@@ -129,7 +116,6 @@ Pojedyncze wydatki poniesione w ramach podróży, przypisane do kategorii.
 | `users` | 1 : N | `trip_participants` | użytkownik uczestniczy w wielu podróżach |
 | `trips` | 1 : N | `trip_participants` | podróż ma wielu uczestników |
 | `trips` | 1 : N | `destinations` | podróż składa się z wielu miejsc |
-| `destinations` | 1 : N | `activities` | w miejscu dzieje się wiele aktywności |
 | `trips` | 1 : N | `expenses` | podróż ma wiele wydatków |
 | `expense_categories` | 1 : N | `expenses` | kategoria grupuje wiele wydatków |
 
@@ -137,8 +123,8 @@ Pojedyncze wydatki poniesione w ramach podróży, przypisane do kategorii.
 
 ## Konwencje
 
-- **Klucze główne:** `uuid` dla obiektów biznesowych (`users`, `trips`, `expenses`, `expense_categories`), `bigint` auto-increment dla zasobów technicznych pod trip (`destinations`, `activities`).
-- **Znaczniki czasu:** `timestamp` z `DEFAULT now()` dla `created_at` / `joined_at`.
+- **Klucze główne:** `uuid` dla obiektów biznesowych (`users`, `trips`, `expenses`, `expense_categories`), `bigint` dla tabeli `destinations`.
+- **Znaczniki czasu:** `created_at` i `joined_at` są wymagane (`NOT NULL`) i ustawiane po stronie aplikacji/migracji.
 - **Waluta:** kwoty w `expenses.amount` przechowywane w EUR (przeliczenie z waluty oryginalnej paragonu odbywa się w aplikacji na podstawie kursów EBC — patrz [README.md](../README.md)).
 - **Kaskady:** zaleca się `ON DELETE CASCADE` dla FK z `trip_id` (usunięcie podróży kasuje uczestników, destynacje i wydatki). Do doprecyzowania przy tworzeniu migracji Supabase.
 
