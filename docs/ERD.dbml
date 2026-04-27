@@ -34,12 +34,12 @@ Table trips {
 
 Table trip_participants {
   trip_id uuid [not null]
-  user_id uuid [not null]
+  user_id uuid
   role varchar [not null, note: "'owner' | 'member'"]
   joined_at timestamp [not null]
 
   indexes {
-    (trip_id, user_id) [pk]
+    (trip_id, user_id) [unique]
   }
 }
 

@@ -52,12 +52,12 @@ Centralny obiekt aplikacji — każda wyprawa ma swój budżet i ramy czasowe.
 
 | Kolumna | Typ | Uwagi |
 |---|---|---|
-| `trip_id` | `uuid` | **PK**, FK → `trips.trip_id` |
-| `user_id` | `uuid` | **PK**, FK → `users.user_id` |
+| `trip_id` | `uuid` | NOT NULL, FK → `trips.trip_id` |
+| `user_id` | `uuid` | FK → `users.user_id` (opcjonalne) |
 | `role` | `varchar` | NOT NULL — dozwolone wartości: `owner`, `member` |
 | `joined_at` | `timestamp` | NOT NULL |
 
-> **Uwaga:** klucz główny to para `(trip_id, user_id)` — jeden użytkownik może być tylko raz uczestnikiem danej podróży.
+> **Uwaga:** para `(trip_id, user_id)` jest oznaczona jako unikalna — zapobiega duplikatom przypisania tego samego użytkownika do tej samej podróży.
 
 ---
 
@@ -113,7 +113,7 @@ Pojedyncze wydatki poniesione w ramach podróży, przypisane do kategorii.
 
 | Od | Kardynalność | Do | Znaczenie |
 |---|---|---|---|
-| `users` | 1 : N | `trip_participants` | użytkownik uczestniczy w wielu podróżach |
+| `users` | 1 : 0..N | `trip_participants` | uczestnik może, ale nie musi mieć powiązanego użytkownika |
 | `trips` | 1 : N | `trip_participants` | podróż ma wielu uczestników |
 | `trips` | 1 : N | `destinations` | podróż składa się z wielu miejsc |
 | `trips` | 1 : N | `expenses` | podróż ma wiele wydatków |
