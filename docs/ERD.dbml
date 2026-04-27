@@ -1,50 +1,53 @@
 // Europlanner - Schemat bazy danych
 // Docs: https://dbml.dbdiagram.io/docs
 // Podgląd/edycja: https://dbdiagram.io/d
+//
+// Konwencja: nazwy tabel w PascalCase (Users, Trips, Trip_participants, ...).
+// Cały kod aplikacji używa tej formy (np. supabase.from("Users")).
 
 Project europlanner {
   database_type: 'PostgreSQL'
   Note: '''
     # Europlanner Database
     Schemat bazy danych aplikacji Europlanner (Supabase / PostgreSQL).
-    Obsługuje planowanie podróży grupowych oraz wspólne rozliczenia.
+    Obsługuje planowanie podróży grupowych, listę aktywności oraz wspólne rozliczenia.
   '''
 }
 
-Table users {
+Table Users {
   user_id uuid [pk]
-  name text [not null]
+  name text
   surname text
-  email text
-  password text [not null, note: 'Obsługiwane przez Supabase Auth — kolumna poglądowa']
-  admin_access boolean [not null, default: false]
-  avatar_id text
+  password text [not null]
+  Admin_access boolean [default: false, note: 'Uwaga: pisownia z dużej A']
+  avatar_id text [default: 'yellow-smile', note: 'FK logiczny → lib/avatars.ts']
+  email text [unique, note: 'Opcjonalne przy rejestracji']
 }
 
-Table trips {
+Table Trips {
   trip_id uuid [pk]
-  slug text [not null]
   title varchar [not null]
   description varchar
   start_date date
   end_date date
   budget_limit numeric
-  created_at timestamp [not null]
+  created_at timestamp [default: `now()`]
+  slug text [unique, not null, note: 'Używane w URL-ach, generowane przez lib/slug.ts']
 }
 
-Table trip_participants {
+Table Trip_participants {
   trip_id uuid [not null]
-  user_id uuid
+  user_id uuid [not null]
   role varchar [not null, note: "'owner' | 'member'"]
-  joined_at timestamp [not null]
+  joined_at timestamp [default: `now()`]
 
   indexes {
-    (trip_id, user_id) [unique]
+    (trip_id, user_id) [pk]
   }
 }
 
-Table destinations {
-  destination_id bigint [pk]
+Table Destinations {
+  destination_id bigint [pk, increment]
   trip_id uuid [not null]
   name text [not null]
   lat real
@@ -54,25 +57,36 @@ Table destinations {
   visit_order smallint
 }
 
-Table expense_categories {
-  category_id uuid [pk]
-  name varchar [not null]
+Table Activities {
+  activity_id bigint [pk, increment]
+  destination_id bigint [not null]
+  title varchar
+  start_time timestamp
+  cost real
+  is_completed boolean [default: false]
 }
 
-Table expenses {
+Table Expense_categories {
+  category_id uuid [pk]
+  name varchar
+}
+
+Table Expenses {
   expense_id uuid [pk]
   trip_id uuid [not null]
-  category_id uuid
+  category_id uuid [not null]
   amount real [not null]
   date date [not null]
   note text
 }
 
 // Relacje
-Ref: trip_participants.trip_id > trips.trip_id
-Ref: trip_participants.user_id > users.user_id
+Ref: Trip_participants.trip_id > Trips.trip_id
+Ref: Trip_participants.user_id > Users.user_id
 
-Ref: destinations.trip_id > trips.trip_id
+Ref: Destinations.trip_id > Trips.trip_id
 
-Ref: expenses.trip_id > trips.trip_id
-Ref: expenses.category_id > expense_categories.category_id
+Ref: Activities.destination_id > Destinations.destination_id
+
+Ref: Expenses.trip_id > Trips.trip_id
+Ref: Expenses.category_id > Expense_categories.category_id

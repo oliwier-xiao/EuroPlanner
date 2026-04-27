@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { 
   User, 
@@ -15,6 +16,8 @@ import {
   ChevronRight,
   AlertCircle
 } from "lucide-react";
+import { AvatarPicker } from "@/components/ui/AvatarPicker";
+import { useAvatar } from "@/hooks/useAvatar";
 
 type CurrentUser = {
   displayName: string;
@@ -28,13 +31,14 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
 
- 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAvatarPickerOpen, setIsAvatarPickerOpen] = useState(false);
+  const { avatar, setAvatarId } = useAvatar();
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileFeedback, setProfileFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,11 +70,54 @@ export default function SettingsPage() {
     };
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setAvatarUrl(imageUrl);
+  const handleSaveProfile = async () => {
+    setProfileFeedback(null);
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setProfileFeedback({ type: "error", message: "Imię nie może być puste" });
+      return;
+    }
+
+    const trimmedEmail = email.trim();
+    const [firstWord, ...rest] = trimmedName.split(/\s+/);
+    const surnameValue = rest.length > 0 ? rest.join(" ") : null;
+
+    setIsSavingProfile(true);
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: firstWord,
+          surname: surnameValue,
+          email: trimmedEmail.length > 0 ? trimmedEmail : null,
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setProfileFeedback({
+          type: "error",
+          message: payload?.message || "Nie udało się zapisać zmian",
+        });
+        return;
+      }
+
+      setProfileFeedback({ type: "success", message: "Zapisano zmiany" });
+      const updated = payload?.user;
+      if (updated) {
+        const fullName = [updated.name, updated.surname].filter(Boolean).join(" ").trim();
+        setCurrentUser({
+          displayName: fullName || updated.name || "Użytkownik",
+          email: updated.email ?? null,
+        });
+      }
+    } catch {
+      setProfileFeedback({ type: "error", message: "Nie udało się połączyć z serwerem" });
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -112,33 +159,25 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
-            <div 
-              className="relative group cursor-pointer shrink-0" 
-              onClick={handleAvatarClick}
+            <button
+              type="button"
+              onClick={() => setIsAvatarPickerOpen(true)}
+              aria-label={`Zmień awatar (aktualnie: ${avatar.name})`}
+              className="relative group shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3E67BF] focus-visible:ring-offset-2"
             >
-              {avatarUrl ? (
-                <img 
-                  src={avatarUrl} 
-                  alt="Avatar" 
-                  className="w-24 h-24 rounded-full object-cover shadow-inner"
+              <div className="w-24 h-24 rounded-full bg-white border border-[#eef0f3] overflow-hidden shadow-inner">
+                <Image
+                  src={avatar.src}
+                  alt=""
+                  width={192}
+                  height={192}
+                  className="w-full h-full object-cover"
                 />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-[#3E67BF] text-white flex items-center justify-center text-3xl font-bold shadow-inner">
-                  {(currentUser?.displayName || name || "U").charAt(0)}
-                </div>
-              )}
+              </div>
               <div className="absolute inset-0 bg-[#0a0b0d]/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Camera className="text-white" size={24} />
               </div>
-            </div>
-
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              accept="image/*" 
-              className="hidden" 
-            />
+            </button>
 
             <div className="flex-1 w-full space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -163,10 +202,27 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
-              <div className="flex justify-end">
-                <button className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3">
+                {profileFeedback && (
+                  <span
+                    role="alert"
+                    className={`text-sm font-medium px-4 py-2 rounded-full ${
+                      profileFeedback.type === "success"
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                    }`}
+                  >
+                    {profileFeedback.message}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  disabled={isSavingProfile}
+                  className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
                   <Save size={18} />
-                  Zapisz zmiany
+                  {isSavingProfile ? "Zapisywanie..." : "Zapisz zmiany"}
                 </button>
               </div>
             </div>
@@ -309,6 +365,13 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      <AvatarPicker
+        open={isAvatarPickerOpen}
+        selectedId={avatar.id}
+        onSelect={setAvatarId}
+        onClose={() => setIsAvatarPickerOpen(false)}
+      />
     </div>
   );
 }

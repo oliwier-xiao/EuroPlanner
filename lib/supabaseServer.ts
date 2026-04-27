@@ -1,4 +1,8 @@
+// Klient Supabase z uprawnieniami service-role — TYLKO server-side.
+// Nigdy nie może trafić do bundle klienta (wyciekłby SUPABASE_SERVICE_ROLE_KEY).
+import "server-only";
 import { createClient } from "@supabase/supabase-js";
+import { getServerEnv } from "./env";
 
 let client: ReturnType<typeof createClient> | null = null;
 
@@ -7,14 +11,9 @@ export function getSupabaseServer() {
     return client;
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const env = getServerEnv();
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("Brak NEXT_PUBLIC_SUPABASE_URL lub SUPABASE_SERVICE_ROLE_KEY w zmiennych środowiskowych.");
-  }
-
-  client = createClient(supabaseUrl, supabaseServiceRoleKey, {
+  client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

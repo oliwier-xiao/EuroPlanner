@@ -4,3 +4,4 @@ out/
 .env
 .env.local
 playwright-report/index.html
+*.tsbuildinfo
