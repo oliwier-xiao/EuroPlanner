@@ -7,8 +7,8 @@
     {
       "name": "Users",
       "schemaName": "public",
-      "x": 0,
-      "y": 50
+      "x": 275.051513671875,
+      "y": -286.4508632455212
     },
     {
       "name": "Trips",
@@ -19,20 +19,14 @@
     {
       "name": "Trip_participants",
       "schemaName": "public",
-      "x": 540.62744140625,
+      "x": 576.2972061463176,
       "y": 50
     },
     {
       "name": "Destinations",
       "schemaName": "public",
-      "x": 792.90185546875,
-      "y": 50
-    },
-    {
-      "name": "Activities",
-      "schemaName": "public",
-      "x": 0,
-      "y": 356
+      "x": 826.5333479379567,
+      "y": 160.06631914838474
     },
     {
       "name": "Expense_categories",
@@ -78,7 +72,20 @@
       "secondTableName": "Users",
       "secondSchemaName": "public",
       "secondRelation": "1",
-      "checkPoints": []
+      "checkPoints": [
+        {
+          "x": 503.05111179081973,
+          "y": 130
+        },
+        {
+          "x": 503.05111179081973,
+          "y": 32.56378439167332
+        },
+        {
+          "x": 514.693115234375,
+          "y": 32.56378439167332
+        }
+      ]
     },
     {
       "firstFieldNames": [
@@ -93,29 +100,14 @@
       "secondTableName": "Trips",
       "secondSchemaName": "public",
       "secondRelation": "1",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "destination_id"
-      ],
-      "firstTableName": "Activities",
-      "firstSchemaName": "public",
-      "firstRelation": "*",
-      "secondFieldNames": [
-        "destination_id"
-      ],
-      "secondTableName": "Destinations",
-      "secondSchemaName": "public",
-      "secondRelation": "1",
       "checkPoints": [
         {
-          "x": 836.2587890625,
-          "y": 92
+          "x": 541.2015254691652,
+          "y": 240.06631914838474
         },
         {
-          "x": 836.2587890625,
-          "y": 266
+          "x": 541.2015254691652,
+          "y": 98
         }
       ]
     },
@@ -147,7 +139,36 @@
       "secondTableName": "Expense_categories",
       "secondSchemaName": "public",
       "secondRelation": "1",
-      "checkPoints": []
+      "checkPoints": [
+        {
+          "x": 520.62744140625,
+          "y": 436
+        }
+      ]
+    },
+    {
+      "firstFieldNames": [
+        "paid_by"
+      ],
+      "firstTableName": "Expenses",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "Users",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": [
+        {
+          "x": 501.6853718985261,
+          "y": 499.999999999999
+        },
+        {
+          "x": 501.6853718985261,
+          "y": 32.44471356871537
+        }
+      ]
     }
   ]
 }

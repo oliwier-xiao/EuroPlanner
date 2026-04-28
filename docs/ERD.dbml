@@ -15,69 +15,75 @@ Project europlanner {
 }
 
 Table Users {
-  user_id uuid [pk]
-  name text
-  surname text
-  password text [not null]
-  Admin_access boolean [default: false, note: 'Uwaga: pisownia z dużej A']
-  avatar_id text [default: 'yellow-smile', note: 'FK logiczny → lib/avatars.ts']
-  email text [unique, note: 'Opcjonalne przy rejestracji']
+  user_id uuid [pk, note: 'Identyfikator użytkownika']
+  name text [note: 'Imię użytkownika']
+  surname text [note: 'Nazwisko użytkownika']
+  password text [not null, note: 'Hasło zapisane w bazie jako hash']
+  Admin_access boolean [default: false, note: 'Flaga uprawnień administratora. Uwaga: pisownia z dużej A']
+  avatar_id text [default: 'yellow-smile', note: 'Id wybranego awatara. FK logiczny → lib/avatars.ts']
+  email text [unique, note: 'Adres e-mail używany do logowania i kontaktu. Opcjonalne przy rejestracji']
+  tries numeric [default: 0, note: 'Liczba nieudanych prób logowania']
+  locked boolean [default: false, note: 'Czy konto jest czasowo zablokowane po przekroczeniu limitu prób']
+
+  Note: 'Konta użytkowników aplikacji: dane logowania, profil, avatar oraz stan blokady konta.'
 }
 
 Table Trips {
-  trip_id uuid [pk]
-  title varchar [not null]
-  description varchar
-  start_date date
-  end_date date
-  budget_limit numeric
-  created_at timestamp [default: `now()`]
+  trip_id uuid [pk, note: 'Identyfikator podróży']
+  title varchar [not null, note: 'Nazwa podróży widoczna w aplikacji']
+  description varchar [note: 'Opcjonalny opis lub notatka o podróży']
+  start_date date [note: 'Data rozpoczęcia podróży']
+  end_date date [note: 'Data zakończenia podróży']
+  budget_limit numeric [note: 'Maksymalny budżet podróży w EUR']
+  created_at timestamp [default: `now()`, note: 'Moment utworzenia rekordu']
   slug text [unique, not null, note: 'Unikalny, NOT NULL. Przyjazny identyfikator używany w URL-ach (np. /trips/wakacje-w-pradze-a3f9). Generowany automatycznie z tytułu przez lib/slug.ts (ASCII-only + losowy suffix). Indeks UNIQUE: trips_slug_unique.']
+
+  Note: 'Główna tabela podróży. Jedna pozycja opisuje jedną wyprawę z nazwą, zakresem dat, limitem budżetu i przyjaznym slugiem do URL.'
 }
 
 Table Trip_participants {
-  trip_id uuid [not null]
-  user_id uuid [not null]
-  role varchar [not null, note: "'owner' | 'member'"]
-  joined_at timestamp [default: `now()`]
+  trip_id uuid [not null, note: 'FK do Trips.trip_id']
+  user_id uuid [not null, note: 'FK do Users.user_id']
+  role varchar [not null, note: "Rola użytkownika w podróży: 'owner' lub 'member'"]
+  joined_at timestamp [default: `now()`, note: 'Data i czas dołączenia użytkownika do podróży']
 
   indexes {
     (trip_id, user_id) [pk]
   }
+
+  Note: 'Tabela łącząca użytkowników z podróżami. Przechowuje przypisanie uczestnika do danej wyprawy i jego rolę.'
 }
 
 Table Destinations {
-  destination_id bigint [pk, increment]
-  trip_id uuid [not null]
-  name text [not null]
-  lat real
-  lng real
-  arrival_date date
-  departure_date date
-  visit_order smallint
-}
+  destination_id bigint [pk, increment, note: 'Identyfikator miejsca docelowego']
+  trip_id uuid [not null, note: 'FK do Trips.trip_id']
+  name text [not null, note: 'Nazwa miejsca, miasta lub punktu na trasie']
+  lat real [note: 'Szerokość geograficzna']
+  lng real [note: 'Długość geograficzna']
+  arrival_time timestampz [note: 'Planowana data i godzina przyjazdu']
+  departure_time timestampz [note: 'Planowana data i godzina wyjazdu']
+  visit_order smallint [note: 'Kolejność odwiedzania na trasie']
 
-Table Activities {
-  activity_id bigint [pk, increment]
-  destination_id bigint [not null]
-  title varchar
-  start_time timestamp
-  cost real
-  is_completed boolean [default: false]
+  Note: 'Miejsca docelowe przypisane do konkretnej podróży, np. miasta, przystanki lub punkty programu.'
 }
 
 Table Expense_categories {
-  category_id uuid [pk]
-  name varchar
+  category_id uuid [pk, note: 'Identyfikator kategorii wydatku']
+  name varchar [note: 'Nazwa kategorii, np. Transport lub Jedzenie']
+
+  Note: 'Słownik kategorii wydatków używany do grupowania kosztów w podróży.'
 }
 
 Table Expenses {
-  expense_id uuid [pk]
-  trip_id uuid [not null]
-  category_id uuid [not null]
-  amount real [not null]
-  date date [not null]
-  note text
+  expense_id uuid [pk, note: 'Identyfikator wydatku']
+  trip_id uuid [not null, note: 'FK do Trips.trip_id']
+  category_id uuid [not null, note: 'FK do Expense_categories.category_id']
+  amount real [not null, note: 'Kwota wydatku w EUR']
+  date date [not null, note: 'Data poniesienia wydatku']
+  note text [note: 'Opcjonalna notatka, np. opis paragonu']
+  paid_by uuid [not null, note: 'FK do Users.user_id, osoba która opłaciła wydatek']
+
+  Note: 'Wydatki poniesione w ramach podróży, przypisane do kategorii i osoby płacącej.'
 }
 
 // Relacje
@@ -86,7 +92,6 @@ Ref: Trip_participants.user_id > Users.user_id
 
 Ref: Destinations.trip_id > Trips.trip_id
 
-Ref: Activities.destination_id > Destinations.destination_id
-
 Ref: Expenses.trip_id > Trips.trip_id
 Ref: Expenses.category_id > Expense_categories.category_id
+Ref: Expenses.paid_by > Users.user_id
