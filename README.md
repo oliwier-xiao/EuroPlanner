@@ -91,7 +91,7 @@ EuroPlanner/
 │   ├── (dashboard)/                  — Panel użytkownika po zalogowaniu
 │   │   ├── settings/                 — Ustawienia konta
 │   │   └── trips/                    — Lista podróży
-│   │       └── [tripId]/             — Widok konkretnej podróży (dynamiczny routing)
+│   │       └── [tripCode]/           — Widok konkretnej podróży (dynamiczny routing po slug-u w URL)
 │   │           ├── budget/           — Zarządzanie budżetem i limitami
 │   │           ├── expenses/         — Wydatki – dodawanie, lista, OCR paragonów
 │   │           ├── report/           — Generowanie raportów PDF/CSV

@@ -3,12 +3,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  Plus,
-  Camera,
-  Search,
-  Coffee,
-  Plane,
-  Home,
+  Plus, 
+  Camera, 
+  Search, 
+  Coffee, 
+  Plane, 
+  Home, 
   ShoppingBag,
   Filter,
   RefreshCw,
@@ -51,7 +51,7 @@ type ExchangeRatesPayload = {
 export default function ExpensesPage() {
   const router = useRouter();
   const params = useParams();
-  const tripSlug = typeof params.tripSlug === "string" ? params.tripSlug : "";
+  const tripCode = typeof params.tripCode === "string" ? params.tripCode : "";
   const [activeTab, setActiveTab] = useState("Wszystkie");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("Wlochy");
@@ -146,8 +146,8 @@ export default function ExpensesPage() {
           <button
             type="button"
             onClick={() => {
-              if (!tripSlug) return;
-              router.push(`/trips/${tripSlug}/scan`);
+              if (!tripCode) return;
+              router.push(`/trips/${tripCode}/scan`);
             }}
             className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10"
           >
