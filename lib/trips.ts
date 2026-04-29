@@ -1,4 +1,7 @@
 import { cache } from "react";
+import { mapDestinationRowToDto } from "@/lib/mapDestinationRow";
+import { compareRoutePointsForDisplay } from "@/lib/routePointSort";
+import type { RoutePointDto } from "@/lib/routePointTypes";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 
 export type TripIdentifier = {
@@ -137,3 +140,25 @@ export const getTripSummary = cache(async (tripId: string): Promise<TripSummary>
 
   return { participants, expensesTotal, nextDestination };
 });
+
+export async function getRoutePoints(tripId: string): Promise<RoutePointDto[]> {
+  const supabaseServer = getSupabaseServer();
+
+  const { data, error } = await (supabaseServer as any)
+    .from("Destinations")
+    .select(
+      "destination_id, country, city, arrival_time, departure_time, lat, lng, visit_order"
+    )
+    .eq("trip_id", tripId);
+
+  if (error) {
+    console.error("SZCZEGOLY BLEDU SUPABASE:", error.message, error.hint, error.details);
+    throw new Error(error.message);
+  }
+
+  const rows: RoutePointDto[] = (data ?? []).map((d: Record<string, unknown>) =>
+    mapDestinationRowToDto(d)
+  );
+
+  return [...rows].sort(compareRoutePointsForDisplay);
+}
