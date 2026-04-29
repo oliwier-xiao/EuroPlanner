@@ -136,7 +136,7 @@ const handleLogout = async () => {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden w-full">
-        <header className="h-20 border-b border-[#eef0f3]/40 bg-[#3E67BF] flex items-center justify-between gap-4 px-4 sm:px-6 md:px-8 z-30">
+        <header className="relative h-20 border-b border-[#eef0f3]/40 bg-[#3E67BF] flex items-center justify-between gap-4 px-4 sm:px-6 md:px-8 z-40">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               href="/dashboard"
