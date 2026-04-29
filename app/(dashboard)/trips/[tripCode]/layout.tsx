@@ -29,10 +29,10 @@ export default function TripLayout({
 }) {
   const pathname = usePathname();
   const params = useParams();
-  const tripSlug = typeof params.tripSlug === "string" ? params.tripSlug : "";
+  const tripCode = typeof params.tripCode === "string" ? params.tripCode : "";
 
   const isActive = (href: string) => {
-    const fullPath = `/trips/${tripSlug}${href}`;
+    const fullPath = `/trips/${tripCode}${href}`;
     return pathname === fullPath;
   };
 
@@ -62,7 +62,7 @@ export default function TripLayout({
               return (
                 <Link
                   key={item.name}
-                  href={`/trips/${tripSlug}${item.href}`}
+                  href={`/trips/${tripCode}${item.href}`}
                   className={`
                     flex items-center gap-2 px-6 py-3 text-sm font-bold whitespace-nowrap transition-all rounded-[56px]
                     ${active 
