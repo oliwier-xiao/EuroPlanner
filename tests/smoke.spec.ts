@@ -84,8 +84,8 @@ test('Bledne dane logowania pokazuja blad', async ({ page }) => {
   await ensureLoggedOut(page);
   await page.goto('/login');
 
-  // Zmiana: używamy nowych placeholderów "admin" i "••••••••"
-  await fillStable(page.getByPlaceholder('admin'), 'zly');
+  // Zmiana: placeholder loginu to "jan_kowal" (przykładowy username), hasło "••••••••"
+  await fillStable(page.getByPlaceholder('jan_kowal'), 'zly');
   await fillStable(page.getByPlaceholder('••••••••'), 'zly');
   
   await page.getByRole('button', { name: /Zaloguj się/i }).click();
