@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { 
   Receipt, 
   Plus, 
@@ -23,6 +24,10 @@ const MOCK_EXPENSES = [
 ];
 
 export default function ExpensesPage() {
+  const router = useRouter();
+  const params = useParams();
+  const tripCode = typeof params.tripCode === "string" ? params.tripCode : "";
+
   const [activeTab, setActiveTab] = useState("Wszystkie");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -38,7 +43,10 @@ export default function ExpensesPage() {
           <p className="text-[#5b616e]">Zarządzaj kosztami i skanuj paragony.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <button className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10">
+          <button
+            onClick={() => router.push(`/trips/${tripCode}/scan`)}
+            className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10"
+          >
             <Camera size={20} className="group-hover:scale-110 transition-transform" />
             Skanuj paragon
           </button>
