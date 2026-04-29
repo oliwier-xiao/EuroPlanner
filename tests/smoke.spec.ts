@@ -178,6 +178,40 @@ test('Wejscie w wycieczke pokazuje jej tytul (a nie hardcoded "Majowka w Rzymie"
   await expect(page.locator('h2')).not.toContainText('Majówka w Rzymie');
 });
 
+test('Strona Podsumowania pokazuje realne dane (nie mock 1 840 EUR / Koloseum)', async ({ page }) => {
+  test.skip(!backendE2EEnabled, 'Pomijam test backendowy: Supabase niedostępny w tym środowisku CI.');
+  await registerAndSignIn(page);
+
+  const tripTitle = `Smoke summary ${Date.now()}`;
+  const createTripResponse = await page.request.post('/api/trips', {
+    data: {
+      title: tripTitle,
+      description: 'Sprawdzamy realne liczby na podsumowaniu',
+      start_date: '2026-06-01',
+      end_date: '2026-06-05',
+      budget_limit: 1500,
+    },
+    timeout: 10_000,
+  });
+  if (!createTripResponse.ok()) {
+    throw new Error(`Create trip failed: ${createTripResponse.status()} ${await createTripResponse.text()}`);
+  }
+  const { trip } = await createTripResponse.json();
+
+  await page.goto(`/trips/${trip.id}`);
+  await expect(page.getByRole('heading', { level: 2, name: tripTitle })).toBeVisible();
+
+  const mainContent = page.locator('main').last();
+  await expect(mainContent).not.toContainText('1 840');
+  await expect(mainContent).not.toContainText('Koloseum');
+  await expect(mainContent).not.toContainText('Forum Romanum');
+  await expect(mainContent).not.toContainText('Piazza del Colosseo');
+
+  const summaryText = (await mainContent.textContent()) ?? '';
+  expect(summaryText, 'budget_limit z bazy (1500) powinien być widoczny').toMatch(/1\s*500/);
+  expect(summaryText, 'creator powinien być policzony jako 1 uczestnik (a nie hardcoded 4)').not.toMatch(/Aktywni uczestnicy[\s\S]*?\b4\b/);
+});
+
 test('Dropdown user-menu dziala na stronie wycieczki (nie zaslania go sticky pasek tabow)', async ({ page }) => {
   test.skip(!backendE2EEnabled, 'Pomijam test backendowy: Supabase niedostępny w tym środowisku CI.');
   await registerAndSignIn(page);
