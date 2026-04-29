@@ -2,7 +2,7 @@
 // Docs: https://dbml.dbdiagram.io/docs
 // Podgląd/edycja: https://dbdiagram.io/d
 //
-// Konwencja: nazwy tabel w PascalCase (Users, Trips, Destinations, ...).
+// Konwencja: nazwy tabel w PascalCase (Users, Trips, Trip_participants, ...).
 // Cały kod aplikacji używa tej formy (np. supabase.from("Users")).
 
 Project europlanner {
@@ -30,7 +30,6 @@ Table Users {
 
 Table Trips {
   trip_id uuid [pk, note: 'Identyfikator podróży']
-  user_id uuid [null, note: 'Opcjonalny FK do Users.user_id (właściciel/opiekun podróży)']
   title varchar [not null, note: 'Nazwa podróży widoczna w aplikacji']
   description varchar [note: 'Opcjonalny opis lub notatka o podróży']
   start_date date [note: 'Data rozpoczęcia podróży']
@@ -39,7 +38,20 @@ Table Trips {
   created_at timestamp [default: `now()`, note: 'Moment utworzenia rekordu']
   slug text [unique, not null, note: 'Unikalny, NOT NULL. Przyjazny identyfikator używany w URL-ach (np. /trips/wakacje-w-pradze-a3f9). Generowany automatycznie z tytułu przez lib/slug.ts (ASCII-only + losowy suffix). Indeks UNIQUE: trips_slug_unique.']
 
-  Note: 'Główna tabela podróży. Jedna pozycja opisuje jedną wyprawę oraz opcjonalnego użytkownika powiązanego bezpośrednio z rekordem.'
+  Note: 'Główna tabela podróży. Jedna pozycja opisuje jedną wyprawę z nazwą, zakresem dat, limitem budżetu i przyjaznym slugiem do URL.'
+}
+
+Table Trip_participants {
+  trip_id uuid [not null, note: 'FK do Trips.trip_id']
+  user_id uuid [not null, note: 'FK do Users.user_id']
+  role varchar [not null, note: "Rola użytkownika w podróży: 'owner' lub 'member'"]
+  joined_at timestamp [default: `now()`, note: 'Data i czas dołączenia użytkownika do podróży']
+
+  indexes {
+    (trip_id, user_id) [pk]
+  }
+
+  Note: 'Tabela łącząca użytkowników z podróżami. Przechowuje przypisanie uczestnika do danej wyprawy i jego rolę.'
 }
 
 Table Destinations {
@@ -75,7 +87,8 @@ Table Expenses {
 }
 
 // Relacje
-Ref: Trips.user_id > Users.user_id
+Ref: Trip_participants.trip_id > Trips.trip_id
+Ref: Trip_participants.user_id > Users.user_id
 
 Ref: Destinations.trip_id > Trips.trip_id
 
