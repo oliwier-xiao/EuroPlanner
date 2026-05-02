@@ -10,7 +10,7 @@ import {
   Plus,
   AlertCircle
 } from "lucide-react";
-
+import { checkLimitUsage, limitAlert } from "./limits-logic";
 // Przykładowe dane kategorii budżetowych
 const BUDGET_CATEGORIES = [
   { id: "zakwaterowanie", name: "Zakwaterowanie", icon: Home, spent: 800, limit: 800, color: "bg-[#0a2351]" },
@@ -25,7 +25,7 @@ export default function BudgetPage() {
 
   const totalSpent = BUDGET_CATEGORIES.reduce((acc, cat) => acc + cat.spent, 0);
   const totalLimit = BUDGET_CATEGORIES.reduce((acc, cat) => acc + cat.limit, 0);
-  const percentUsed = Math.min(Math.round((totalSpent / totalLimit) * 100), 100);
+  const percentUsed = Math.min(checkLimitUsage(totalSpent, totalLimit), 100);
 
   return (
     <div className="space-y-10 animate-in fade-in duration-500">
@@ -90,7 +90,9 @@ export default function BudgetPage() {
       <h3 className="text-2xl font-bold text-[#0a0b0d] tracking-tight mb-6">Rozbicie na kategorie</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {BUDGET_CATEGORIES.map((category) => {
-          const categoryPercent = Math.round((category.spent / category.limit) * 100);
+          const categoryPercent = checkLimitUsage(category.spent, category.limit);
+          const alertThreshold = 80;
+          const alertInfo = limitAlert(alertThreshold, category.limit, category.spent);
           const isOverBudget = categoryPercent >= 100;
           // Sprawdzamy czy najeżdzamy na element na górnym wykresie
           const isHighlighted = activeCategory === category.id;
@@ -114,8 +116,8 @@ export default function BudgetPage() {
                     <p className="text-[#5b616e] text-sm">Limit: {category.limit} EUR</p>
                   </div>
                 </div>
-                {isOverBudget && (
-                  <div className="text-red-500 bg-red-50 p-2 rounded-full animate-pulse">
+                {(isOverBudget || alertInfo.alert) && (
+                  <div className={`${isOverBudget ? 'text-red-500 bg-red-50' : 'text-yellow-600 bg-yellow-50'} p-2 rounded-full animate-pulse`} title={alertInfo.message}>
                     <AlertCircle size={20} />
                   </div>
                 )}
