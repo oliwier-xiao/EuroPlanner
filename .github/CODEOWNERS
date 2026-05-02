@@ -1,0 +1,8 @@
+# Code owners for EuroPlanner
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-policies/about-code-owners
+#
+# Wszyscy wymienieni dostają automatyczny review request przy każdym PR.
+# Branch protection na `main` wymaga 1 approve — wystarczy że ktokolwiek
+# z poniższej listy (poza autorem PR-a) da approve.
+
+*  @Jakubpoland @Karolina7271 @KnurGit @Rafcioooo @0miorts @oliwier-xiao

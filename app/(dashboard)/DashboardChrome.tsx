@@ -237,7 +237,7 @@ const handleLogout = async () => {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-[#ffffff]">
+        <main className="flex-1 overflow-y-auto bg-[#ffffff] text-[#0a0b0d]">
           {children}
         </main>
       </div>
