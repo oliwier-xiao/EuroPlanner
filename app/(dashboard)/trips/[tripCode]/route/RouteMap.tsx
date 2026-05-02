@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import "leaflet/dist/leaflet.css";
+
 import type { RoutePointDto, RoutePreviewDto } from "@/lib/routePointTypes";
 
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -35,7 +37,6 @@ export default function RouteMap({
     let disposed = false;
 
     void (async () => {
-      await import("leaflet/dist/leaflet.css");
       const leafletMod = await import("leaflet");
       const L = leafletMod.default;
       if (disposed || !containerRef.current) return;
