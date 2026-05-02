@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseServer } from "@/lib/supabaseServer";
 import DashboardClient from "./DashboardClient";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +8,7 @@ export const revalidate = 0;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 import { getCurrentUser, formatUserDisplayName } from "@/lib/auth/getCurrentUser";
+import { configErrorMessage } from "@/lib/env";
 
 type TripCard = {
   id: string;
@@ -67,16 +68,43 @@ export default async function DashboardPage() {
     return <DashboardClient user={null} trips={[]} stats={null} />;
   }
 
+  let supabaseServer;
+  try {
+    supabaseServer = getSupabaseServer();
+  } catch (err) {
+    console.error("[dashboard] Supabase config error:", err);
+    // Pulpit bez danych, ale bez crasha
+    return <DashboardClient user={null} trips={[]} stats={null} />;
+  }
+
   const user = await getCurrentUser(userId);
 
   if (!user) {
     return <DashboardClient user={null} trips={[]} stats={null} />;
   }
 
-  const { data: membershipRows } = await supabase
+  const { data: membershipRows, error: membershipError } = await supabaseServer
     .from("Trip_participants")
     .select("trip_id")
     .eq("user_id", userId);
+
+  if (membershipError) {
+    console.error("[dashboard] membershipError:", membershipError);
+    return (
+      <DashboardClient
+        user={user}
+        trips={[]}
+        stats={{
+          activeTrips: 0,
+          upcomingTrips: 0,
+          totalTrips: 0,
+          totalParticipants: 0,
+          totalSpent: 0,
+          displayName: formatUserDisplayName(user),
+        }}
+      />
+    );
+  }
 
   const tripIds = (membershipRows ?? []).map((row) => row.trip_id).filter(Boolean);
 
@@ -98,15 +126,15 @@ export default async function DashboardPage() {
   }
 
   const [{ data: tripsData }, { data: participantRows }, { data: expenseRows }] = await Promise.all([
-    supabase
+    supabaseServer
       .from("Trips")
       .select("trip_id, slug, title, start_date, end_date, budget_limit")
       .in("trip_id", tripIds),
-    supabase
+    supabaseServer
       .from("Trip_participants")
       .select("trip_id")
       .in("trip_id", tripIds),
-    supabase
+    supabaseServer
       .from("Expenses")
       .select("trip_id, amount")
       .in("trip_id", tripIds),

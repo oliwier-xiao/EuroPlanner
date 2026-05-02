@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { 
-  Plus, TrendingUp, Users, CreditCard, ArrowRight, MapPin, Clock, X, Mail, Shield
+  Plus, TrendingUp, Users, CreditCard, ArrowRight, MapPin, Clock, Mail, Shield
 } from "lucide-react";
 import { useAvatar } from "@/hooks/useAvatar";
 
@@ -53,7 +53,6 @@ export default function DashboardClient({
   stats: Stats | null;
 }) {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { avatar } = useAvatar();
   const resolvedName = stats?.displayName || [user?.name, user?.surname].filter(Boolean).join(" ");
   const greeting = resolvedName ? `Witaj, ${resolvedName}!` : "Witaj!";
@@ -75,7 +74,7 @@ export default function DashboardClient({
           </p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => router.push("/trips?new=1")}
           className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-all flex items-center justify-center gap-2"
         >
           <Plus size={20} />
@@ -184,20 +183,6 @@ export default function DashboardClient({
         )}
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] w-screen h-screen bg-[#0a0b0d]/20 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className="bg-[#ffffff] border border-[#5b616e]/20 w-full max-w-xl rounded-[40px] p-10 shadow-2xl relative">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-gray-400 hover:text-black">
-               <X size={24} />
-            </button>
-            <h2 className="text-3xl font-bold text-[#0a0b0d] tracking-tight mb-8 text-center">Zaplanuj przygodę</h2>
-            <div className="space-y-6">
-              <input type="text" placeholder="Nazwa wyprawy" className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] outline-none focus:border-[#0a2351]" />
-              <button className="w-full py-4 bg-[#0a2351] text-white font-bold rounded-full">Dalej</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

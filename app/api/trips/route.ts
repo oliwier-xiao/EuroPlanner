@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-import { configErrorMessage } from "@/lib/env";
+import { configErrorMessage, isDev } from "@/lib/env";
 import { buildTripSlug } from "@/lib/slug";
+// main_currency wyłączone do czasu dodania kolumny w bazie
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,26 @@ type TripRow = {
   end_date: string | null;
   budget_limit: number | string | null;
 };
+
+function responseSupabaseError(message: string, err: any) {
+  if (!isDev()) {
+    return NextResponse.json({ success: false, message }, { status: 500 });
+  }
+
+  return NextResponse.json(
+    {
+      success: false,
+      message,
+      supabase: {
+        message: err?.message ?? null,
+        code: err?.code ?? null,
+        details: err?.details ?? null,
+        hint: err?.hint ?? null,
+      },
+    },
+    { status: 500 }
+  );
+}
 
 function formatStatus(startDate: string | null, endDate: string | null) {
   if (!startDate && !endDate) return "Planowana";
@@ -87,7 +108,8 @@ export async function GET() {
     .eq("user_id", user.user_id);
 
   if (membershipError) {
-    return NextResponse.json({ success: false, message: "Nie udało się pobrać podróży" }, { status: 500 });
+    console.error("[api/trips] membershipError:", membershipError);
+    return responseSupabaseError("Nie udało się pobrać podróży (uczestnictwo)", membershipError);
   }
 
   const tripIds = (memberships ?? []).map((row) => row.trip_id).filter(Boolean);
@@ -112,7 +134,8 @@ export async function GET() {
   ]);
 
   if (tripsError) {
-    return NextResponse.json({ success: false, message: "Nie udało się pobrać podróży" }, { status: 500 });
+    console.error("[api/trips] tripsError:", tripsError);
+    return responseSupabaseError("Nie udało się pobrać podróży (lista)", tripsError);
   }
 
   const participantCountByTrip = new Map<string, number>();
@@ -138,6 +161,8 @@ export async function GET() {
         dates: formatDateRange(trip.start_date ?? null, trip.end_date ?? null),
         participants: participantCountByTrip.get(trip.trip_id) ?? 0,
         budget: budgetLimit > 0 ? Math.min(100, Math.round((spent / budgetLimit) * 100)) : 0,
+        spentValueEur: spent,
+        totalValueEur: budgetLimit > 0 ? budgetLimit : null,
         spent: formatCurrency(spent),
         total: budgetLimit > 0 ? formatCurrency(budgetLimit) : "Brak limitu",
       };
@@ -201,18 +226,17 @@ export async function POST(request: NextRequest) {
   const tripId = crypto.randomUUID();
   const slug = buildTripSlug(title);
 
-  const { error: createError } = await supabaseServer
-    .from("Trips")
-    .insert({
-      trip_id: tripId,
-      slug,
-      title: title.trim(),
-      description: description?.trim() || null,
-      start_date: start_date || null,
-      end_date: end_date || null,
-      budget_limit: parsedBudget,
-    })
-    ;
+  const createPayload: Record<string, any> = {
+    trip_id: tripId,
+    slug,
+    title: title.trim(),
+    description: description?.trim() || null,
+    start_date: start_date || null,
+    end_date: end_date || null,
+    budget_limit: parsedBudget,
+  };
+
+  const createError = (await supabaseServer.from("Trips").insert(createPayload)).error;
 
   if (createError) {
     console.error("Błąd tworzenia podróży:", createError);
@@ -260,6 +284,8 @@ export async function POST(request: NextRequest) {
       dates: formatDateRange(start_date || null, end_date || null),
       participants: 1,
       budget: 0,
+      spentValueEur: 0,
+      totalValueEur: parsedBudget ?? null,
       spent: formatCurrency(0),
       total: parsedBudget !== null ? formatCurrency(parsedBudget) : "Brak limitu",
     },
