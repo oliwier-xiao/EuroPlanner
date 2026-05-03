@@ -266,7 +266,7 @@ export default function TripsListPage() {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-full md:w-auto px-7 py-3.5 sm:px-8 sm:py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2"
+            className="w-full md:w-auto px-7 py-3.5 sm:px-8 sm:py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <Plus size={20} />
             <span>Nowa Podróż</span>
@@ -282,7 +282,7 @@ export default function TripsListPage() {
                 listFilter === "all"
                   ? "bg-[#0a2351] text-white shadow-md"
                   : "text-[#5b616e] hover:text-[#0a2351] hover:bg-[#eef0f3]"
-              }`}
+              } cursor-pointer`}
             >
               Wszystkie
             </button>
@@ -293,7 +293,7 @@ export default function TripsListPage() {
                 listFilter === "active"
                   ? "bg-[#0a2351] text-white shadow-md"
                   : "text-[#5b616e] hover:text-[#0a2351] hover:bg-[#eef0f3]"
-              }`}
+              } cursor-pointer`}
             >
               Aktywne
             </button>
@@ -304,7 +304,7 @@ export default function TripsListPage() {
                 listFilter === "archived"
                   ? "bg-[#0a2351] text-white shadow-md"
                   : "text-[#5b616e] hover:text-[#0a2351] hover:bg-[#eef0f3]"
-              }`}
+              } cursor-pointer`}
             >
               Zarchiwizowane
             </button>

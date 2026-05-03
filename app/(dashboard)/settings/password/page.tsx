@@ -65,7 +65,7 @@ export default function ChangePasswordPage() {
       {/* PRZYCISK POWROTU */}
       <button 
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-[#5b616e] hover:text-[#0a2351] font-bold transition-colors group"
+        className="flex items-center gap-2 text-[#5b616e] hover:text-[#0a2351] font-bold transition-colors group cursor-pointer"
       >
         <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
         Powrót do ustawień
@@ -101,7 +101,7 @@ export default function ChangePasswordPage() {
               <button 
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors cursor-pointer"
               >
                 {showCurrent ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -124,7 +124,7 @@ export default function ChangePasswordPage() {
               <button 
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors cursor-pointer"
               >
                 {showNew ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -145,7 +145,7 @@ export default function ChangePasswordPage() {
               <button 
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5b616e] hover:text-[#0a2351] transition-colors cursor-pointer"
               >
                 {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -165,14 +165,14 @@ export default function ChangePasswordPage() {
             <button 
               type="button"
               onClick={() => router.back()}
-              className="w-full px-8 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors"
+              className="w-full px-8 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors cursor-pointer"
             >
               Anuluj
             </button>
             <button 
               type="button"
               onClick={handleUpdatePassword}
-              className="w-full px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#0a2351]/10"
+              className="w-full px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#0a2351]/10 cursor-pointer"
             >
               <Save size={20} />
               Zapisz zmiany

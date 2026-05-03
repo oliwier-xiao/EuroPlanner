@@ -74,11 +74,11 @@ export default function DashboardClient({
           </p>
         </div>
         <button 
-          onClick={() => router.push("/trips?new=1")}
-          className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-all flex items-center justify-center gap-2"
+          onClick={() => router.push("/trips")}
+          className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Plus size={20} />
-          <span>Nowa podróż</span>
+          <span>Zaplanuj podróż</span>
         </button>
       </div>
 

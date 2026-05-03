@@ -163,7 +163,7 @@ export default function SettingsPage() {
               type="button"
               onClick={() => setIsAvatarPickerOpen(true)}
               aria-label={`Zmień awatar (aktualnie: ${avatar.name})`}
-              className="relative group shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3E67BF] focus-visible:ring-offset-2"
+              className="relative group shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3E67BF] focus-visible:ring-offset-2 cursor-pointer"
             >
               <div className="w-24 h-24 rounded-full bg-white border border-[#eef0f3] overflow-hidden shadow-inner">
                 <Image
@@ -219,7 +219,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={handleSaveProfile}
                   disabled={isSavingProfile}
-                  className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="px-8 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 text-sm border border-[#5b616e]/10 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <Save size={18} />
                   {isSavingProfile ? "Zapisywanie..." : "Zapisz zmiany"}
@@ -275,7 +275,7 @@ export default function SettingsPage() {
               </div>
               <button 
                 onClick={() => setNotifications(!notifications)}
-                className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${notifications ? 'bg-[#0a2351]' : 'bg-[#eef0f3] border border-[#5b616e]/20'}`}
+                className={`relative w-14 h-8 rounded-full transition-colors duration-300 cursor-pointer ${notifications ? 'bg-[#0a2351]' : 'bg-[#eef0f3] border border-[#5b616e]/20'}`}
               >
                 <div className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${notifications ? 'translate-x-6' : 'translate-x-0 border border-[#5b616e]/10'}`} />
               </button>
@@ -295,7 +295,7 @@ export default function SettingsPage() {
           
           <Link 
             href="/settings/password"
-            className="flex items-center justify-between p-6 rounded-[32px] bg-[#f8f9fa] hover:bg-[#eef0f3] transition-colors group border border-[#5b616e]/10 hover:border-[#0a2351]/30"
+            className="flex items-center justify-between p-6 rounded-[32px] bg-[#f8f9fa] hover:bg-[#eef0f3] transition-colors group border border-[#5b616e]/10 hover:border-[#0a2351]/30 cursor-pointer"
           >
             <div className="flex items-center gap-4">
               <Lock size={20} className="text-[#3E67BF]" />
@@ -319,7 +319,7 @@ export default function SettingsPage() {
             </div>
             <button 
               onClick={openDeleteModal}
-              className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-[56px] transition-colors flex items-center gap-2 shrink-0 text-sm border border-red-200"
+              className="px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-[56px] transition-colors flex items-center gap-2 shrink-0 text-sm border border-red-200 cursor-pointer"
             >
               <Trash2 size={18} />
               Usuń konto
@@ -356,7 +356,7 @@ export default function SettingsPage() {
                 </button>
                 <button 
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="w-full py-4 text-[#0a2351] font-bold hover:bg-[#f8f9fa] rounded-[56px] transition-colors border border-transparent hover:border-[#5b616e]/20"
+                  className="w-full py-4 text-[#0a2351] font-bold hover:bg-[#f8f9fa] rounded-[56px] transition-colors border border-transparent hover:border-[#5b616e]/20 cursor-pointer"
                 >
                   Anuluj
                 </button>
