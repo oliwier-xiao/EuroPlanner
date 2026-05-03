@@ -24,6 +24,8 @@ type Trip = {
   totalValueEur: number | null;
   spent: string;
   total: string;
+  mainCurrency: SupportedCurrency;
+  isArchived: boolean;
 };
 
 type TripFormState = {
@@ -32,6 +34,7 @@ type TripFormState = {
   startDate: string;
   endDate: string;
   budgetLimit: string;
+  mainCurrency: SupportedCurrency;
 };
 
 const EMPTY_FORM: TripFormState = {
@@ -40,6 +43,7 @@ const EMPTY_FORM: TripFormState = {
   startDate: "",
   endDate: "",
   budgetLimit: "",
+  mainCurrency: "EUR",
 };
 
 type ExchangeRatesPayload = {
@@ -64,6 +68,8 @@ function normalizeTrip(input: any): Trip {
       : Number(input.totalValueEur),
     spent: String(input?.spent ?? "0"),
     total: String(input?.total ?? "Brak limitu"),
+    mainCurrency: isSupportedCurrency(input?.mainCurrency) ? input.mainCurrency : "EUR",
+    isArchived: Boolean(input?.isArchived ?? false),
   };
 }
 
@@ -187,15 +193,15 @@ export default function TripsListPage() {
         listFilter === "all"
           ? true
           : listFilter === "active"
-            ? trip.status === "W trakcie"
-            : trip.status === "Zakończona";
+            ? !trip.isArchived
+            : trip.isArchived;
       return matchesSearch && matchesStatus && matchesList;
     });
   }, [trips, searchTerm, statusFilter, listFilter]);
 
   const currencyTrips = useMemo(() => {
     return filteredTrips.map((trip) => {
-      const targetCurrency: SupportedCurrency = "EUR";
+      const targetCurrency: SupportedCurrency = isSupportedCurrency(trip.mainCurrency) ? trip.mainCurrency : "EUR";
       const spent = convertCurrency(trip.spentValueEur ?? 0, "EUR", targetCurrency, ratesMeta.rates);
       const total = trip.totalValueEur === null
         ? null
@@ -226,6 +232,7 @@ export default function TripsListPage() {
           start_date: form.startDate || null,
           end_date: form.endDate || null,
           budget_limit: form.budgetLimit || null,
+          main_currency: form.mainCurrency,
         }),
       });
 
@@ -502,6 +509,40 @@ export default function TripsListPage() {
                     placeholder="np. 5000"
                     className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors"
                   />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[11px] font-bold uppercase tracking-[1px] text-[#5b616e] pl-4">
+                    Waluta główna
+                  </label>
+                  <select
+                    value={form.mainCurrency}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        mainCurrency: isSupportedCurrency(event.target.value)
+                          ? (event.target.value as SupportedCurrency)
+                          : "EUR",
+                      }))
+                    }
+                    className="w-full bg-[#f8f9fa] border border-[#5b616e]/20 rounded-full px-6 py-4 text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors cursor-pointer appearance-none pr-10"
+                    style={{
+                      backgroundImage:
+                        'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235b616e%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 1rem top 50%",
+                      backgroundSize: "0.65rem auto",
+                    }}
+                  >
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-[#5b616e] pl-4">
+                    W tej walucie wyświetlimy budżet i podsumowania dla podróży (wydatki i tak trzymamy w EUR).
+                  </p>
                 </div>
 
               </div>

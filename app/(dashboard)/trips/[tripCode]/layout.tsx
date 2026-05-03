@@ -10,6 +10,24 @@ import TripChrome from "./TripChrome";
 
 export const dynamic = "force-dynamic";
 
+function formatStatus(startDate: string | null, endDate: string | null) {
+  if (!startDate && !endDate) return "Planowana";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+
+  if (start) start.setHours(0, 0, 0, 0);
+  if (end) end.setHours(0, 0, 0, 0);
+
+  if (start && start > today) return "Planowana";
+  if (start && end && start <= today && end >= today) return "W trakcie";
+  if (end && end < today) return "Zakończona";
+  return "Planowana";
+}
+
 export default async function TripLayout({
   children,
   params,
@@ -25,7 +43,12 @@ export default async function TripLayout({
   }
 
   return (
-    <TripChrome title={trip.title} tripCode={trip.slug}>
+    <TripChrome
+      title={trip.title}
+      tripCode={trip.slug}
+      status={formatStatus(trip.start_date, trip.end_date)}
+      isArchived={trip.is_archived}
+    >
       {children}
     </TripChrome>
   );

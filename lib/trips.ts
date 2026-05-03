@@ -15,6 +15,8 @@ export type TripDetails = TripIdentifier & {
   start_date: string | null;
   end_date: string | null;
   budget_limit: number | null;
+  main_currency: string | null;
+  is_archived: boolean;
 };
 
 export type TripParticipant = {
@@ -44,7 +46,7 @@ export const findTripBySlug = cache(async (slug: string): Promise<TripDetails | 
   const supabaseServer = getSupabaseServer();
   const { data, error } = await supabaseServer
     .from("Trips")
-    .select("trip_id, slug, title, description, start_date, end_date, budget_limit")
+    .select("trip_id, slug, title, description, start_date, end_date, budget_limit, main_currency, is_archived")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -58,6 +60,8 @@ export const findTripBySlug = cache(async (slug: string): Promise<TripDetails | 
     start_date: string | null;
     end_date: string | null;
     budget_limit: number | string | null;
+    main_currency?: string | null;
+    is_archived?: boolean | null;
   };
 
   return {
@@ -71,6 +75,8 @@ export const findTripBySlug = cache(async (slug: string): Promise<TripDetails | 
       row.budget_limit !== null && row.budget_limit !== undefined
         ? Number(row.budget_limit)
         : null,
+    main_currency: row.main_currency ?? null,
+    is_archived: Boolean(row.is_archived ?? false),
   };
 });
 

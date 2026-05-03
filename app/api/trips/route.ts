@@ -4,7 +4,7 @@ import { getSupabaseServer } from "@/lib/supabaseServer";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
 import { configErrorMessage, isDev } from "@/lib/env";
 import { buildTripSlug } from "@/lib/slug";
-// main_currency wyłączone do czasu dodania kolumny w bazie
+import { isSupportedCurrency, type SupportedCurrency } from "@/lib/currency";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,8 @@ type TripRow = {
   start_date: string | null;
   end_date: string | null;
   budget_limit: number | string | null;
+  main_currency?: string | null;
+  is_archived?: boolean | null;
 };
 
 function responseSupabaseError(message: string, err: any) {
@@ -121,7 +123,7 @@ export async function GET() {
   const [{ data: tripsData, error: tripsError }, { data: participantRows }, { data: expenseRows }] = await Promise.all([
     supabaseServer
       .from("Trips")
-      .select("trip_id, slug, title, description, start_date, end_date, budget_limit")
+      .select("trip_id, slug, title, description, start_date, end_date, budget_limit, main_currency, is_archived")
       .in("trip_id", tripIds),
     supabaseServer
       .from("Trip_participants")
@@ -165,6 +167,8 @@ export async function GET() {
         totalValueEur: budgetLimit > 0 ? budgetLimit : null,
         spent: formatCurrency(spent),
         total: budgetLimit > 0 ? formatCurrency(budgetLimit) : "Brak limitu",
+        mainCurrency: isSupportedCurrency(trip.main_currency) ? (trip.main_currency as SupportedCurrency) : "EUR",
+        isArchived: Boolean(trip.is_archived ?? false),
       };
     })
     .sort((left, right) => left.name.localeCompare(right.name, "pl"));
@@ -199,12 +203,14 @@ export async function POST(request: NextRequest) {
     start_date = null,
     end_date = null,
     budget_limit = null,
+    main_currency = "EUR",
   } = (body ?? {}) as {
     title?: string;
     description?: string | null;
     start_date?: string | null;
     end_date?: string | null;
     budget_limit?: string | number | null;
+    main_currency?: SupportedCurrency | string | null;
   };
 
   if (!title || !title.trim()) {
@@ -226,6 +232,8 @@ export async function POST(request: NextRequest) {
   const tripId = crypto.randomUUID();
   const slug = buildTripSlug(title);
 
+  const resolvedCurrency: SupportedCurrency = isSupportedCurrency(main_currency) ? main_currency : "EUR";
+
   const createPayload: Record<string, any> = {
     trip_id: tripId,
     slug,
@@ -234,6 +242,8 @@ export async function POST(request: NextRequest) {
     start_date: start_date || null,
     end_date: end_date || null,
     budget_limit: parsedBudget,
+    main_currency: resolvedCurrency,
+    is_archived: false,
   };
 
   const createError = (await supabaseServer.from("Trips").insert(createPayload)).error;
@@ -288,6 +298,8 @@ export async function POST(request: NextRequest) {
       totalValueEur: parsedBudget ?? null,
       spent: formatCurrency(0),
       total: parsedBudget !== null ? formatCurrency(parsedBudget) : "Brak limitu",
+      mainCurrency: resolvedCurrency,
+      isArchived: false,
     },
   });
 }
