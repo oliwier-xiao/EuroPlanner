@@ -7,38 +7,32 @@
     {
       "name": "Users",
       "schemaName": "public",
-      "x": 275.051513671875,
-      "y": -286.4508632455212
+      "x": 156.26165543772169,
+      "y": -316.5235008724107
     },
     {
       "name": "Trips",
       "schemaName": "public",
-      "x": 279.1171875,
-      "y": 50
-    },
-    {
-      "name": "Trip_participants",
-      "schemaName": "public",
-      "x": 576.2972061463176,
+      "x": 160.32732926584669,
       "y": 50
     },
     {
       "name": "Destinations",
       "schemaName": "public",
-      "x": 826.5333479379567,
-      "y": 160.06631914838474
+      "x": 551.1306407279881,
+      "y": 20.331112980538535
     },
     {
       "name": "Expense_categories",
       "schemaName": "public",
-      "x": 279.1171875,
-      "y": 388
+      "x": 160.32732926584669,
+      "y": 389.22537325420285
     },
     {
       "name": "Expenses",
       "schemaName": "public",
-      "x": 540.62744140625,
-      "y": 260
+      "x": 551.1306407279881,
+      "y": 325.8161103831463
     }
   ],
   "tableGroupCollapseStates": [],
@@ -46,24 +40,9 @@
   "referencePaths": [
     {
       "firstFieldNames": [
-        "trip_id"
-      ],
-      "firstTableName": "Trip_participants",
-      "firstSchemaName": "public",
-      "firstRelation": "*",
-      "secondFieldNames": [
-        "trip_id"
-      ],
-      "secondTableName": "Trips",
-      "secondSchemaName": "public",
-      "secondRelation": "1",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
         "user_id"
       ],
-      "firstTableName": "Trip_participants",
+      "firstTableName": "Trips",
       "firstSchemaName": "public",
       "firstRelation": "*",
       "secondFieldNames": [
@@ -72,20 +51,7 @@
       "secondTableName": "Users",
       "secondSchemaName": "public",
       "secondRelation": "1",
-      "checkPoints": [
-        {
-          "x": 503.05111179081973,
-          "y": 130
-        },
-        {
-          "x": 503.05111179081973,
-          "y": 32.56378439167332
-        },
-        {
-          "x": 514.693115234375,
-          "y": 32.56378439167332
-        }
-      ]
+      "checkPoints": []
     },
     {
       "firstFieldNames": [
@@ -102,11 +68,7 @@
       "secondRelation": "1",
       "checkPoints": [
         {
-          "x": 541.2015254691652,
-          "y": 240.06631914838474
-        },
-        {
-          "x": 541.2015254691652,
+          "x": 786.0475032132179,
           "y": 98
         }
       ]
@@ -161,12 +123,12 @@
       "secondRelation": "1",
       "checkPoints": [
         {
-          "x": 501.6853718985261,
-          "y": 499.999999999999
+          "x": 501.3067414193491,
+          "y": 575.2729284724562
         },
         {
-          "x": 501.6853718985261,
-          "y": 32.44471356871537
+          "x": 501.3067414193491,
+          "y": -263.38270513221715
         }
       ]
     }
