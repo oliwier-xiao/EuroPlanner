@@ -77,7 +77,7 @@ export default function SettlementsPage() {
                 activeTab === tab 
                   ? "bg-[#ffffff] text-[#0a2351] shadow-sm border border-[#5b616e]/10" 
                   : "text-[#5b616e] hover:text-[#0a2351]"
-              }`}
+              } cursor-pointer`}
             >
               {tab}
             </button>
@@ -127,7 +127,7 @@ export default function SettlementsPage() {
                 {settlement.status === "pending" ? (
                   <button
                     disabled={isArchived}
-                    className="px-6 py-3 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors text-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     Rozlicz
                   </button>

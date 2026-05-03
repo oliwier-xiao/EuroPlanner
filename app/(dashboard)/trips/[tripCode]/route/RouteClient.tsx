@@ -332,7 +332,7 @@ export default function RouteClient({
             setIsAddOpen(true);
           }}
           disabled={isArchived}
-          className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Plus size={20} />
           Dodaj punkt trasy
@@ -415,7 +415,7 @@ export default function RouteClient({
                               )
                             }
                             disabled={isArchived}
-                            className="text-[#5b616e] hover:text-[#0a0b0d] hover:bg-[#eef0f3] p-2 rounded-full transition-colors -mt-2 -mr-2"
+                            className="text-[#5b616e] hover:text-[#0a0b0d] hover:bg-[#eef0f3] p-2 rounded-full transition-colors -mt-2 -mr-2 cursor-pointer disabled:cursor-not-allowed"
                           >
                             <MoreVertical size={20} />
                           </button>
@@ -426,7 +426,7 @@ export default function RouteClient({
                                 type="button"
                                 onClick={() => openEdit(point)}
                                 disabled={isArchived}
-                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa]"
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa] cursor-pointer disabled:cursor-not-allowed"
                               >
                                 <Pencil size={16} className="text-[#5b616e]" />
                                 Edytuj
@@ -435,7 +435,7 @@ export default function RouteClient({
                                 type="button"
                                 onClick={() => void handleDelete(point.destination_id)}
                                 disabled={isArchived}
-                                className="flex w-full items-center gap-3 border-t border-[#eef0f3] px-4 py-3 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                                className="flex w-full items-center gap-3 border-t border-[#eef0f3] px-4 py-3 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 cursor-pointer disabled:cursor-not-allowed"
                               >
                                 <Trash2 size={16} />
                                 Usuń
@@ -480,7 +480,7 @@ export default function RouteClient({
                       selectedAlternativeId === alternative.id
                         ? "bg-[#0a2351] text-white border-[#0a2351]"
                         : "bg-[#f8f9fa] text-[#0a0b0d] border-[#eef0f3] hover:border-[#0a2351]/20"
-                    }`}
+                    } cursor-pointer`}
                     title={`${formatDriveTime(alternative.preview.total_duration_seconds)} • ${formatDistance(
                       alternative.preview.total_distance_meters
                     )}`}
@@ -545,7 +545,7 @@ export default function RouteClient({
               <button
                 type="button"
                 onClick={closeAdd}
-                className="rounded-full p-2 text-[#5b616e] transition-colors hover:bg-[#f8f9fa] hover:text-[#0a0b0d]"
+                className="rounded-full p-2 text-[#5b616e] transition-colors hover:bg-[#f8f9fa] hover:text-[#0a0b0d] cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -599,14 +599,14 @@ export default function RouteClient({
                 <button
                   type="button"
                   onClick={closeAdd}
-                  className="rounded-[56px] border border-[#dfe3ea] px-6 py-3 font-semibold text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa]"
+                  className="rounded-[56px] border border-[#dfe3ea] px-6 py-3 font-semibold text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa] cursor-pointer"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 rounded-[56px] bg-[#0a2351] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#578bfa] disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-[56px] bg-[#0a2351] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#578bfa] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting && <Loader2 className="animate-spin" size={16} />}
                   Zapisz punkt
@@ -630,7 +630,7 @@ export default function RouteClient({
               <button
                 type="button"
                 onClick={closeEdit}
-                className="rounded-full p-2 text-[#5b616e] transition-colors hover:bg-[#f8f9fa] hover:text-[#0a0b0d]"
+                className="rounded-full p-2 text-[#5b616e] transition-colors hover:bg-[#f8f9fa] hover:text-[#0a0b0d] cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -688,14 +688,14 @@ export default function RouteClient({
                 <button
                   type="button"
                   onClick={closeEdit}
-                  className="rounded-[56px] border border-[#dfe3ea] px-6 py-3 font-semibold text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa]"
+                  className="rounded-[56px] border border-[#dfe3ea] px-6 py-3 font-semibold text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa] cursor-pointer"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 rounded-[56px] bg-[#0a2351] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#578bfa] disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-[56px] bg-[#0a2351] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#578bfa] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting && <Loader2 className="animate-spin" size={16} />}
                   Zapisz zmiany

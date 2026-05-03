@@ -152,14 +152,14 @@ export default function ExpensesPage() {
               router.push(`/trips/${tripCode}/scan`);
             }}
             disabled={isArchived}
-            className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Camera size={20} className="group-hover:scale-110 transition-transform" />
             Skanuj paragon
           </button>
           <button
             disabled={isArchived}
-            className="px-6 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-6 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Plus size={20} />
             Dodaj wydatek
@@ -185,7 +185,7 @@ export default function ExpensesPage() {
             <button
               type="button"
               onClick={() => setSelectedCurrency(suggestedCurrency)}
-              className="px-4 py-2.5 rounded-full bg-[#eef0f3] hover:bg-[#dfe4ec] text-[#0a2351] text-sm font-bold transition-colors"
+              className="px-4 py-2.5 rounded-full bg-[#eef0f3] hover:bg-[#dfe4ec] text-[#0a2351] text-sm font-bold transition-colors cursor-pointer"
             >
               Sugestia: {suggestedCurrency}
             </button>
@@ -220,7 +220,7 @@ export default function ExpensesPage() {
             <button
               type="button"
               onClick={loadRates}
-              className="p-2.5 rounded-full bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] transition-colors"
+              className="p-2.5 rounded-full bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] transition-colors cursor-pointer"
               aria-label="Odśwież kursy"
             >
               <RefreshCw size={16} className={isRatesLoading ? "animate-spin" : ""} />
@@ -245,7 +245,7 @@ export default function ExpensesPage() {
                 activeTab === tab 
                   ? "bg-[#0a2351] text-white shadow-md" 
                   : "text-[#5b616e] hover:text-[#0a2351] hover:bg-[#f8f9fa]"
-              }`}
+              } cursor-pointer`}
             >
               {tab}
             </button>
@@ -264,7 +264,7 @@ export default function ExpensesPage() {
               className="w-full bg-[#ffffff] border border-[#5b616e]/10 rounded-[56px] pl-11 pr-4 py-3 text-sm text-[#0a0b0d] focus:outline-none focus:border-[#0a2351] transition-colors shadow-sm"
             />
           </div>
-          <button className="p-3 bg-[#ffffff] border border-[#5b616e]/10 rounded-full text-[#5b616e] hover:text-[#0a2351] hover:bg-[#f8f9fa] transition-colors shadow-sm shrink-0">
+          <button className="p-3 bg-[#ffffff] border border-[#5b616e]/10 rounded-full text-[#5b616e] hover:text-[#0a2351] hover:bg-[#f8f9fa] transition-colors shadow-sm shrink-0 cursor-pointer">
             <Filter size={18} />
           </button>
         </div>

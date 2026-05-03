@@ -101,7 +101,7 @@ export default function TripChrome({ children, title, tripCode, status, isArchiv
                   }
                   toggleArchive(!isArchived);
                 }}
-                className={`px-5 py-2.5 rounded-[56px] text-sm font-bold transition-colors disabled:opacity-70 ${
+                className={`px-5 py-2.5 rounded-[56px] text-sm font-bold transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
                   isArchived
                     ? "bg-[#eef0f3] hover:bg-[#e3e6ea] text-[#0a0b0d]"
                     : "bg-[#0a2351] hover:bg-[#578bfa] text-white"
@@ -133,6 +133,7 @@ export default function TripChrome({ children, title, tripCode, status, isArchiv
                       ? "bg-[#0a2351] text-white shadow-md shadow-[#0a2351]/10"
                       : "text-[#5b616e] hover:text-[#0a2351] hover:bg-[#f8f9fa]"
                     }
+                    cursor-pointer
                   `}
                 >
                   <item.icon size={16} />
