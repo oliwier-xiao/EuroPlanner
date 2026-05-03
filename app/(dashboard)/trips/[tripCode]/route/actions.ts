@@ -5,9 +5,21 @@ import { geocodeCityCountry } from "@/lib/geocoding/nominatim";
 import { mapDestinationRowToDto } from "@/lib/mapDestinationRow";
 import type { RoutePointDto } from "@/lib/routePointTypes";
 import { getSupabaseServer } from "@/lib/supabaseServer";
+import { findTripBySlug } from "@/lib/trips";
 
 function routePagePath(tripCode: string) {
   return `/trips/${tripCode}/route`;
+}
+
+async function assertTripNotArchived(tripCode: string) {
+  const trip = await findTripBySlug(tripCode);
+  if (!trip) {
+    throw new Error("Nie znaleziono podróży.");
+  }
+  if (trip.is_archived) {
+    throw new Error("Ta podróż jest zarchiwizowana — nie można wprowadzać zmian.");
+  }
+  return trip;
 }
 
 async function nextVisitOrder(supabase: any, tripId: string): Promise<number> {
@@ -39,6 +51,7 @@ export async function addRoutePointAction(
     departure_date: string;
   }
 ): Promise<RoutePointDto> {
+  const trip = await assertTripNotArchived(tripCode);
   const supabaseServer = getSupabaseServer() as any;
 
   const geo = await geocodeCityCountry(point.city, point.country);
@@ -48,13 +61,13 @@ export async function addRoutePointAction(
     );
   }
 
-  const visit_order = await nextVisitOrder(supabaseServer, point.trip_id);
+  const visit_order = await nextVisitOrder(supabaseServer, trip.trip_id);
 
   const { data, error } = await supabaseServer
     .from("Destinations")
     .insert([
       {
-        trip_id: point.trip_id,
+        trip_id: trip.trip_id,
         country: point.country,
         city: point.city,
         arrival_time: point.arrival_date ? `${point.arrival_date}:00` : null,
@@ -86,6 +99,7 @@ export async function updateRoutePointAction(
     departure_date: string;
   }
 ): Promise<RoutePointDto> {
+  const trip = await assertTripNotArchived(tripCode);
   const supabaseServer = getSupabaseServer() as any;
 
   const geo = await geocodeCityCountry(data.city, data.country);
@@ -106,6 +120,7 @@ export async function updateRoutePointAction(
       lng: geo.lon,
     })
     .eq("destination_id", id)
+    .eq("trip_id", trip.trip_id)
     .select()
     .single();
 
@@ -119,11 +134,13 @@ export async function updateRoutePointAction(
 }
 
 export async function deleteRoutePointAction(tripCode: string, destinationId: string) {
+  const trip = await assertTripNotArchived(tripCode);
   const supabaseServer = getSupabaseServer() as any;
   const { error } = await supabaseServer
     .from("Destinations")
     .delete()
-    .eq("destination_id", destinationId);
+    .eq("destination_id", destinationId)
+    .eq("trip_id", trip.trip_id);
 
   if (error) throw new Error("Nie udalo sie usunac punktu.");
   revalidatePath(routePagePath(tripCode));

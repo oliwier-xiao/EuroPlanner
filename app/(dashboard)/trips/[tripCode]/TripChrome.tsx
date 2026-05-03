@@ -12,6 +12,7 @@ import {
   FileText,
   ChevronLeft,
 } from "lucide-react";
+import { TripUiProvider } from "./TripContext";
 
 const TRIP_NAV_ITEMS = [
   { name: "Podsumowanie", href: "", icon: LayoutDashboard },
@@ -67,7 +68,8 @@ export default function TripChrome({ children, title, tripCode, status, isArchiv
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#ffffff] animate-in fade-in duration-500">
+    <TripUiProvider value={{ tripCode, status, isArchived }}>
+      <div className="flex flex-col h-full bg-[#ffffff] animate-in fade-in duration-500">
       {/* GÓRNY PASEK NAWIGACJI WEWNĄTRZ PODRÓŻY.
           z-20 < z-40 (DashboardChrome header), żeby dropdown user-menu (w header)
           nie był chowany za tym sticky paskiem przy scrollu. */}
@@ -147,6 +149,7 @@ export default function TripChrome({ children, title, tripCode, status, isArchiv
           {children}
         </div>
       </main>
-    </div>
+      </div>
+    </TripUiProvider>
   );
 }

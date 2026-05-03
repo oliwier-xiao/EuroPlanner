@@ -10,6 +10,7 @@ import {
   Plus,
   AlertCircle
 } from "lucide-react";
+import { useTripUi } from "../TripContext";
 
 // Przykładowe dane kategorii budżetowych
 const BUDGET_CATEGORIES = [
@@ -22,6 +23,7 @@ const BUDGET_CATEGORIES = [
 export default function BudgetPage() {
   // Stan przechowujący aktualnie "najechany" (aktywowany) element wykresu
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { isArchived } = useTripUi();
 
   const totalSpent = BUDGET_CATEGORIES.reduce((acc, cat) => acc + cat.spent, 0);
   const totalLimit = BUDGET_CATEGORIES.reduce((acc, cat) => acc + cat.limit, 0);
@@ -41,7 +43,10 @@ export default function BudgetPage() {
             </div>
           </div>
           
-          <button className="px-6 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2">
+          <button
+            disabled={isArchived}
+            className="px-6 py-3 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             <Plus size={18} />
             Zwiększ budżet
           </button>

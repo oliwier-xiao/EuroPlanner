@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, MapPin, MoreVertical, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useTripUi } from "../TripContext";
 
 import { compareRoutePointsForDisplay } from "@/lib/routePointSort";
 import type {
@@ -114,6 +115,7 @@ export default function RouteClient({
   tripCode: string;
 }) {
   const router = useRouter();
+  const { isArchived } = useTripUi();
 
   const [points, setPoints] = useState<RoutePointDto[]>(() =>
     [...(initialPoints || [])].sort(compareRoutePointsForDisplay)
@@ -207,6 +209,7 @@ export default function RouteClient({
   }, [pointsForRouting]);
 
   const openEdit = (point: RoutePointDto) => {
+    if (isArchived) return;
     setEditingPointId(point.destination_id);
     setEditFormData(routePointToFormFields(point));
     setMenuOpenId(null);
@@ -225,6 +228,10 @@ export default function RouteClient({
 
   const handleAddSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isArchived) {
+      setError("Ta podróż jest zarchiwizowana — nie można dodawać punktów trasy.");
+      return;
+    }
     setIsSubmitting(true);
     setError(null);
 
@@ -247,6 +254,10 @@ export default function RouteClient({
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!editingPointId) return;
+    if (isArchived) {
+      setError("Ta podróż jest zarchiwizowana — nie można edytować punktów trasy.");
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -273,6 +284,10 @@ export default function RouteClient({
   };
 
   const handleDelete = async (destinationId: string) => {
+    if (isArchived) {
+      setError("Ta podróż jest zarchiwizowana — nie można usuwać punktów trasy.");
+      return;
+    }
     setIsSubmitting(true);
     setError(null);
 
@@ -316,7 +331,8 @@ export default function RouteClient({
             setError(null);
             setIsAddOpen(true);
           }}
-          className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2"
+          disabled={isArchived}
+          className="w-full md:w-auto px-8 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Plus size={20} />
           Dodaj punkt trasy
@@ -398,6 +414,7 @@ export default function RouteClient({
                                 current === point.destination_id ? null : point.destination_id
                               )
                             }
+                            disabled={isArchived}
                             className="text-[#5b616e] hover:text-[#0a0b0d] hover:bg-[#eef0f3] p-2 rounded-full transition-colors -mt-2 -mr-2"
                           >
                             <MoreVertical size={20} />
@@ -408,6 +425,7 @@ export default function RouteClient({
                               <button
                                 type="button"
                                 onClick={() => openEdit(point)}
+                                disabled={isArchived}
                                 className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[#0a0b0d] transition-colors hover:bg-[#f8f9fa]"
                               >
                                 <Pencil size={16} className="text-[#5b616e]" />
@@ -416,6 +434,7 @@ export default function RouteClient({
                               <button
                                 type="button"
                                 onClick={() => void handleDelete(point.destination_id)}
+                                disabled={isArchived}
                                 className="flex w-full items-center gap-3 border-t border-[#eef0f3] px-4 py-3 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                               >
                                 <Trash2 size={16} />

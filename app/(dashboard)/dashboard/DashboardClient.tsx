@@ -112,7 +112,19 @@ export default function DashboardClient({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {trips.map((trip) => (
-              <div key={trip.id} className="bg-[#ffffff] p-8 rounded-[40px] border border-[#5b616e]/20 hover:shadow-lg transition-all group">
+              <div
+                key={trip.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(`/trips/${trip.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(`/trips/${trip.id}`);
+                  }
+                }}
+                className="bg-[#ffffff] p-8 rounded-[40px] border border-[#5b616e]/20 hover:shadow-lg transition-all group cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0a2351]/30"
+              >
                 <div className="flex justify-between items-start mb-8">
                   <div className="p-4 bg-[#eef0f3] rounded-2xl group-hover:bg-[#0a2351] group-hover:text-white transition-colors text-[#0a2351]">
                     <MapPin size={24} />

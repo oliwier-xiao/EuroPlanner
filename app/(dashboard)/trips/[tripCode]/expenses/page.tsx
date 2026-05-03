@@ -23,6 +23,7 @@ import {
   suggestCurrencyForCountry,
   type SupportedCurrency,
 } from "@/lib/currency";
+import { useTripUi } from "../TripContext";
 
 // Przykładowe dane wydatków
 const MOCK_EXPENSES = [
@@ -52,6 +53,7 @@ export default function ExpensesPage() {
   const router = useRouter();
   const params = useParams();
   const tripCode = typeof params.tripCode === "string" ? params.tripCode : "";
+  const { isArchived } = useTripUi();
   const [activeTab, setActiveTab] = useState("Wszystkie");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("Wlochy");
@@ -149,12 +151,16 @@ export default function ExpensesPage() {
               if (!tripCode) return;
               router.push(`/trips/${tripCode}/scan`);
             }}
-            className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10"
+            disabled={isArchived}
+            className="px-6 py-4 bg-[#f8f9fa] hover:bg-[#eef0f3] text-[#0a2351] font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 group border border-transparent hover:border-[#0a2351]/10 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Camera size={20} className="group-hover:scale-110 transition-transform" />
             Skanuj paragon
           </button>
-          <button className="px-6 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2">
+          <button
+            disabled={isArchived}
+            className="px-6 py-4 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             <Plus size={20} />
             Dodaj wydatek
           </button>

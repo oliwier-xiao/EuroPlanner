@@ -7,6 +7,7 @@ import {
   ArrowDownRight, 
   ArrowUpRight
 } from "lucide-react";
+import { useTripUi } from "../TripContext";
 
 // Przykładowe dane rozliczeń
 const MOCK_SETTLEMENTS = [
@@ -18,6 +19,7 @@ const MOCK_SETTLEMENTS = [
 
 export default function SettlementsPage() {
   const [activeTab, setActiveTab] = useState("Moje rozliczenia");
+  const { isArchived } = useTripUi();
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -123,7 +125,10 @@ export default function SettlementsPage() {
                 </span>
 
                 {settlement.status === "pending" ? (
-                  <button className="px-6 py-3 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors text-sm">
+                  <button
+                    disabled={isArchived}
+                    className="px-6 py-3 bg-[#0a2351] hover:bg-[#578bfa] text-white font-bold rounded-[56px] transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     Rozlicz
                   </button>
                 ) : (
